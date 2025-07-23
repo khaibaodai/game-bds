@@ -4,675 +4,1590 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bậc Thầy Địa Ốc Sài Gòn</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <style>
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
-            background: linear-gradient(135deg, #1e3a8a 0%, #312e81 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
         }
-        #particles-js { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; }
-        .glass-effect {
-            background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(15px);
-            border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
+        
         .card {
-            background: rgba(255, 255, 255, 0.95); border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.15);
+        }
+        
         .btn {
-            border-radius: 15px; padding: 14px 28px; font-weight: 700;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: pointer;
-            border: none; display: inline-flex; align-items: center; justify-content: center;
-            text-transform: uppercase; letter-spacing: 0.8px; position: relative; overflow: hidden;
+            border-radius: 15px;
+            padding: 14px 28px;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            position: relative;
+            overflow: hidden;
         }
+        
         .btn::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
             transition: left 0.5s;
         }
-        .btn:hover::before { left: 100%; }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
         .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2); color: white;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
         }
+        
         .btn-primary:hover {
             transform: translateY(-3px) scale(1.05);
             box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
         }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+            box-shadow: 0 8px 25px rgba(17, 153, 142, 0.4);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
+        }
+        
+        .disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
         .modal-backdrop {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(12px);
-            display: flex; justify-content: center; align-items: center; z-index: 1000;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
             animation: fadeIn 0.4s ease;
         }
+        
         .modal-content {
-            background: linear-gradient(135deg, #ffffff, #f8fafc); color: #1e293b;
-            padding: 3rem; border-radius: 25px; width: 95%; max-width: 650px; text-align: center;
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            padding: 3rem;
+            border-radius: 25px;
+            width: 95%;
+            max-width: 650px;
+            text-align: center;
             animation: modal-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25); border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
+        
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes modal-pop { from { transform: scale(0.7) translateY(50px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
-        .progress-bar { background: #e2e8f0; border-radius: 9999px; height: 8px; overflow: hidden; }
-        .progress-fill {
-            background: linear-gradient(90deg, #667eea, #764ba2); height: 100%;
-            border-radius: 9999px; transition: width 0.5s ease;
+        @keyframes modal-pop { 
+            from { transform: scale(0.7) translateY(50px); opacity: 0; } 
+            to { transform: scale(1) translateY(0); opacity: 1; } 
         }
-        .dialogue-bubble {
-            border-radius: 20px; padding: 1rem 1.5rem; margin: 0.5rem 0;
-            position: relative; animation: fadeInUp 0.5s ease; max-width: 85%;
+        
+        .progress-bar-container {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 50px;
+            overflow: hidden;
+            height: 12px;
+            position: relative;
         }
-        .dialogue-bubble.customer { background: #e0f2fe; color: #0c4a6e; margin-left: auto; }
-        .dialogue-bubble.agent { background: #f1f5f9; color: #1e293b; margin-right: auto; }
+        
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #11998e, #38ef7d);
+            height: 100%;
+            border-radius: 50px;
+            transition: width 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+        }
+        
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
         .dialogue-option {
-            background: white; border: 2px solid #e2e8f0; border-radius: 12px;
-            padding: 1rem 1.5rem; cursor: pointer; transition: all 0.3s ease; text-align: left;
+            border: 3px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            text-align: left;
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            position: relative;
+            overflow: hidden;
         }
+        
+        .dialogue-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
         .dialogue-option:hover {
-            border-color: #667eea; transform: translateX(8px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+            background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+            border-color: #667eea;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
         }
-        .mood-indicator { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; }
-        .mood-happy { color: #10b981; } .mood-neutral { color: #f59e0b; } .mood-unhappy { color: #ef4444; }
+        
+        .dialogue-option:hover::before {
+            left: 100%;
+        }
+        
+        .achievement-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .achievement-unlocked {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+        }
+        
+        .achievement-locked {
+            background: #e5e7eb;
+            color: #9ca3af;
+        }
+        
+        .skill-card {
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .skill-card:hover {
+            transform: translateY(-2px);
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+        
+        .mini-game-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mini-game-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+        
         .property-card {
-            background: white; border-radius: 16px; overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); transition: all 0.3s ease;
-            cursor: pointer; border: 3px solid transparent;
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            border: 2px solid #e5e7eb;
+            border-radius: 18px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
         }
-        .property-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15); }
-        .property-card.selected { border-color: #667eea; transform: translateY(-5px); }
-        .property-tag {
-            display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px;
-            font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+        
+        .property-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: #667eea;
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
         }
-        .typing-indicator { display: inline-flex; align-items: center; gap: 4px; }
-        .typing-dot {
-            width: 8px; height: 8px; border-radius: 50%; background: #667eea;
-            animation: typing 1.4s infinite ease-in-out;
+        
+        .property-card.selected {
+            border-color: #11998e;
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            box-shadow: 0 8px 25px rgba(17, 153, 142, 0.3);
         }
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(17, 153, 142, 0.4);
+            z-index: 999;
+            animation: slideIn 0.5s ease, fadeOut 0.5s ease 4.5s;
+            animation-fill-mode: forwards;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        .particles-js-canvas-el {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .glow {
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .market-trend-up { color: #10b981; }
+        .market-trend-down { color: #ef4444; }
+        .market-trend-stable { color: #6b7280; }
+        
+        .seasonal-banner {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            padding: 1rem;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 1rem;
+            animation: pulse 3s infinite;
+        }
+        
+        .leaderboard-entry {
+            background: linear-gradient(90deg, #ffffff, #f8fafc);
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .leaderboard-entry:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+        
+        .customer-mood-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .mood-happy { background: #dcfce7; color: #166534; }
+        .mood-neutral { background: #fef3c7; color: #92400e; }
+        .mood-unhappy { background: #fecaca; color: #991b1b; }
+        
+        .tab-button {
+            padding: 1rem 2rem;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .daily-challenge {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
     </style>
 </head>
-<body class="p-4">
+<body class="overflow-hidden">
+    <!-- Particles Background -->
     <div id="particles-js"></div>
-    <div id="notification-area"></div>
-
-    <div class="max-w-screen-2xl mx-auto grid grid-cols-12 gap-6 h-[95vh]">
-        
-        <!-- Left Sidebar -->
-        <aside class="col-span-3 h-full">
-            <div class="glass-effect p-6 h-full flex flex-col space-y-6">
-                <div id="player-profile-panel"></div>
-                <div id="skills-panel" class="flex-grow"></div>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="col-span-6 h-full">
-            <div class="card p-6 h-full flex flex-col">
-                <div id="game-area" class="flex-1"></div>
-            </div>
-        </main>
-
-        <!-- Right Sidebar -->
-        <aside class="col-span-3 h-full">
-            <div class="glass-effect p-6 h-full">
-                <div id="context-panel"></div>
-            </div>
-        </aside>
-    </div>
     
-    <footer class="text-center text-sm text-white opacity-70 py-2">Game được làm mang tính chất vui vẻ bởi Vũ Trọng Khải</footer>
+    <!-- Notification Area -->
+    <div id="notification-area"></div>
+    
+    <!-- Main Game Container -->
+    <div class="h-screen flex flex-col p-4">
+        <!-- Header with Navigation -->
+        <header class="game-container rounded-2xl p-4 mb-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <h1 class="text-3xl font-extrabold text-white">
+                        <i class="fas fa-crown text-yellow-400 mr-2"></i>
+                        Siêu Sao Môi Giới 3.0
+                    </h1>
+                    <div id="seasonal-event" class="seasonal-banner hidden">
+                        <i class="fas fa-gift mr-2"></i>
+                        <span id="seasonal-text">Sự kiện đặc biệt!</span>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button class="tab-button active" onclick="switchTab('game')">
+                        <i class="fas fa-gamepad mr-2"></i>Game
+                    </button>
+                    <button class="tab-button" onclick="switchTab('achievements')">
+                        <i class="fas fa-trophy mr-2"></i>Thành tựu
+                    </button>
+                    <button class="tab-button" onclick="switchTab('leaderboard')">
+                        <i class="fas fa-ranking-star mr-2"></i>Bảng xếp hạng
+                    </button>
+                    <button class="tab-button" onclick="switchTab('minigames')">
+                        <i class="fas fa-puzzle-piece mr-2"></i>Mini Games
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 grid grid-cols-12 gap-4">
+            <!-- Left Sidebar: Player Stats -->
+            <aside class="col-span-3">
+                <div class="space-y-4 h-full">
+                    <!-- Player Profile -->
+                    <div class="card p-6">
+                        <h2 class="text-2xl font-extrabold text-gray-800 mb-4">
+                            <i class="fas fa-user-tie text-blue-500 mr-2"></i>
+                            Hồ Sơ Cá Nhân
+                        </h2>
+                        <div class="text-center mb-6">
+                            <div id="player-avatar" class="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                                <i id="rank-icon" class="fas fa-user-graduate text-3xl text-white"></i>
+                            </div>
+                            <div id="player-rank" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-200 text-gray-800 font-bold">
+                                Tập sự
+                            </div>
+                        </div>
+                        
+                        <!-- Stats -->
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm font-medium text-gray-600">Kinh nghiệm</span>
+                                    <span id="exp-text" class="text-sm text-gray-500">0 / 100</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div id="exp-bar" class="progress-bar-fill" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="text-center">
+                                    <p class="text-sm text-gray-600">Hoa hồng</p>
+                                    <p id="player-cash" class="text-2xl font-bold text-green-600">$500</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-sm text-gray-600">Deals</p>
+                                    <p id="total-deals" class="text-2xl font-bold text-blue-600">0</p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 text-center">
+                                <div>
+                                    <p class="text-sm text-gray-600">Tỷ lệ thành công</p>
+                                    <p id="success-rate" class="text-lg font-bold text-purple-600">0%</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600">Streak</p>
+                                    <p id="current-streak" class="text-lg font-bold text-orange-600">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skills -->
+                    <div class="card p-6">
+                        <h2 class="text-2xl font-extrabold text-gray-800 mb-4">
+                            <i class="fas fa-cogs text-purple-500 mr-2"></i>
+                            Kỹ Năng
+                        </h2>
+                        <div id="skills-container" class="space-y-3"></div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <section class="col-span-6">
+                <!-- Game Tab -->
+                <div id="game-tab" class="tab-content h-full">
+                    <div class="card p-6 h-full flex flex-col">
+                        <div id="main-game-area" class="flex-1">
+                            <!-- Game content will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Achievements Tab -->
+                <div id="achievements-tab" class="tab-content h-full hidden">
+                    <div class="card p-6 h-full">
+                        <h2 class="text-3xl font-extrabold text-gray-800 mb-6">
+                            <i class="fas fa-trophy text-yellow-500 mr-3"></i>
+                            Thành Tựu
+                        </h2>
+                        <div id="achievements-grid" class="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                            <!-- Achievements will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leaderboard Tab -->
+                <div id="leaderboard-tab" class="tab-content h-full hidden">
+                    <div class="card p-6 h-full">
+                        <h2 class="text-3xl font-extrabold text-gray-800 mb-6">
+                            <i class="fas fa-ranking-star text-blue-500 mr-3"></i>
+                            Bảng Xếp Hạng
+                        </h2>
+                        <div id="leaderboard-list" class="space-y-3 max-h-96 overflow-y-auto">
+                            <!-- Leaderboard will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mini Games Tab -->
+                <div id="minigames-tab" class="tab-content h-full hidden">
+                    <div class="card p-6 h-full">
+                        <h2 class="text-3xl font-extrabold text-gray-800 mb-6">
+                            <i class="fas fa-puzzle-piece text-green-500 mr-3"></i>
+                            Mini Games
+                        </h2>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="mini-game-card" onclick="startMiniGame('negotiation')">
+                                <i class="fas fa-handshake text-6xl mb-4"></i>
+                                <h3 class="text-xl font-bold">Đàm Phán</h3>
+                                <p class="text-sm opacity-90 mt-2">Luyện tập kỹ năng đàm phán</p>
+                            </div>
+                            <div class="mini-game-card" onclick="startMiniGame('market-prediction')">
+                                <i class="fas fa-chart-line text-6xl mb-4"></i>
+                                <h3 class="text-xl font-bold">Dự Đoán Thị Trường</h3>
+                                <p class="text-sm opacity-90 mt-2">Đoán xu hướng giá BĐS</p>
+                            </div>
+                            <div class="mini-game-card" onclick="startMiniGame('speed-matching')">
+                                <i class="fas fa-bolt text-6xl mb-4"></i>
+                                <h3 class="text-xl font-bold">Ghép Đôi Nhanh</h3>
+                                <p class="text-sm opacity-90 mt-2">Ghép khách hàng với BĐS</p>
+                            </div>
+                            <div class="mini-game-card" onclick="startMiniGame('daily-challenge')">
+                                <i class="fas fa-calendar-day text-6xl mb-4"></i>
+                                <h3 class="text-xl font-bold">Thử Thách Hàng Ngày</h3>
+                                <p class="text-sm opacity-90 mt-2">Hoàn thành nhiệm vụ đặc biệt</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Sidebar: Context Information -->
+            <aside class="col-span-3">
+                <div class="space-y-4 h-full">
+                    <!-- Market Trends -->
+                    <div class="card p-4">
+                        <h3 class="text-lg font-bold text-gray-800 mb-3">
+                            <i class="fas fa-chart-area text-green-500 mr-2"></i>
+                            Thị Trường
+                        </h3>
+                        <div id="market-trends" class="space-y-2 text-sm">
+                            <!-- Market trends will be rendered here -->
+                        </div>
+                    </div>
+
+                    <!-- Daily Challenge -->
+                    <div class="card p-4">
+                        <h3 class="text-lg font-bold text-gray-800 mb-3">
+                            <i class="fas fa-star text-yellow-500 mr-2"></i>
+                            Thử Thách Hôm Nay
+                        </h3>
+                        <div id="daily-challenge" class="daily-challenge">
+                            <p class="font-semibold" id="challenge-text">Chưa có thử thách</p>
+                            <div class="mt-2">
+                                <div class="progress-bar-container">
+                                    <div id="challenge-progress" class="progress-bar-fill" style="width: 0%;"></div>
+                                </div>
+                                <p class="text-xs mt-1 opacity-90" id="challenge-progress-text">0/1</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Context Panel -->
+                    <div class="card p-4 flex-1">
+                        <div id="context-panel">
+                            <!-- Context information will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
 
     <!-- Modals -->
-    <div id="deal-result-modal" class="modal-backdrop hidden"></div>
+    <div id="result-modal" class="modal-backdrop hidden"></div>
     <div id="levelup-modal" class="modal-backdrop hidden"></div>
+    <div id="achievement-modal" class="modal-backdrop hidden"></div>
+    <div id="minigame-modal" class="modal-backdrop hidden"></div>
 
     <script>
-        // --- GAME DATA (EXPANDED) ---
+        // === GAME DATA ===
         const GAME_DATA = {
             properties: [
-                { id: 1, name: 'Căn hộ The Origami', location: 'Quận 9', price: 2800, type: 'Căn hộ', segment: 'Bình dân', marketType: 'Sơ cấp', status: 'Dự án', minLevel: 1, features: ['gần TTTM', 'yên tĩnh', 'cho thuê tốt'] },
-                { id: 2, name: 'Nhà phố The Classia', location: 'TP. Thủ Đức', price: 18000, type: 'Nhà phố', segment: 'Cao cấp', marketType: 'Sơ cấp', status: 'Dự án', minLevel: 5, features: ['cộng đồng văn minh', 'an ninh 24/7', 'gần trường quốc tế', 'tích sản'] },
-                { id: 3, name: 'Biệt thự Aqua City', location: 'Đồng Nai', price: 15000, type: 'Biệt thự', segment: 'Cao cấp', marketType: 'Sơ cấp', status: 'Dự án', minLevel: 4, features: ['view sông', 'yên tĩnh', 'nhiều cây xanh', 'nghỉ dưỡng'] },
-                { id: 4, name: 'Căn hộ Opal Skyline', location: 'Bình Dương', price: 2200, type: 'Căn hộ', segment: 'Bình dân', marketType: 'Sơ cấp', status: 'Dự án', minLevel: 1, features: ['gần khu công nghiệp', 'sinh lời tốt', 'dòng tiền'] },
-                { id: 5, name: 'Căn hộ The Privé', location: 'TP. Thủ Đức', price: 10000, type: 'Căn hộ', segment: 'Hạng sang', marketType: 'Sơ cấp', status: 'Dự án', minLevel: 6, features: ['view sông', 'cộng đồng văn minh', 'tiện ích 5 sao', 'đẳng cấp'] },
-                { id: 6, name: 'Đất nền Century City', location: 'Long Thành', price: 1900, type: 'Đất nền', segment: 'Bình dân', marketType: 'Sơ cấp', status: 'Dự án', minLevel: 2, features: ['gần sân bay', 'sinh lời tốt', 'đầu tư công'] },
-                { id: 7, name: 'Officetel The Sun', location: 'Quận 4', price: 3500, type: 'Officetel', segment: 'Trung cấp', marketType: 'Sơ cấp', status: 'Dự án', minLevel: 3, features: ['gần trung tâm', 'vừa ở vừa làm việc', 'dòng tiền'] },
-                { id: 8, name: 'Condotel The Sóng', location: 'Vũng Tàu', price: 3200, type: 'Condotel', segment: 'Trung cấp', marketType: 'Sơ cấp', status: 'Dự án', minLevel: 3, features: ['view biển', 'nghỉ dưỡng', 'cho thuê tốt'] },
-                { id: 9, name: 'Căn hộ Vinhomes C.P', location: 'Bình Thạnh', price: 5500, type: 'Căn hộ', segment: 'Trung cấp', marketType: 'Thứ cấp', status: 'Có sẵn', minLevel: 2, features: ['gần trung tâm', 'tiện ích 5 sao', 'cộng đồng văn minh', 'cho thuê tốt'] },
-                { id: 10, name: 'Nhà phố Phú Mỹ Hưng', location: 'Quận 7', price: 25000, type: 'Nhà phố', segment: 'Hạng sang', marketType: 'Thứ cấp', status: 'Có sẵn', minLevel: 6, features: ['gần trường quốc tế', 'an ninh 24/7', 'yên tĩnh'] },
-                { id: 11, name: 'Biệt thự Thảo Điền', location: 'TP. Thủ Đức', price: 50000, type: 'Biệt thự', segment: 'Hàng hiệu', marketType: 'Thứ cấp', status: 'Có sẵn', minLevel: 8, features: ['view sông', 'yên tĩnh', 'cộng đồng văn minh', 'đẳng cấp'] },
-                { id: 12, name: 'Căn hộ The Marq', location: 'Quận 1', price: 30000, type: 'Căn hộ', segment: 'Hàng hiệu', marketType: 'Thứ cấp', status: 'Có sẵn', minLevel: 7, features: ['gần trung tâm', 'tiện ích 5 sao', 'đẳng cấp'] },
-                { id: 13, name: 'Căn hộ Topaz Home', location: 'Quận 12', price: 1900, type: 'Căn hộ', segment: 'Nhà ở xã hội', marketType: 'Thứ cấp', status: 'Có sẵn', minLevel: 1, features: ['giá rẻ', 'gần khu công nghiệp'] },
-                { id: 14, name: 'Shophouse Sala', location: 'TP. Thủ Đức', price: 45000, type: 'Shophouse', segment: 'Hạng sang', marketType: 'Thứ cấp', status: 'Có sẵn', minLevel: 7, features: ['sinh lời tốt', 'dòng tiền', 'đẳng cấp'] },
-                { id: 15, name: 'Nhà riêng hẻm xe hơi', location: 'Phú Nhuận', price: 8000, type: 'Nhà phố', segment: 'Cao cấp', marketType: 'Thứ cấp', status: 'Có sẵn', minLevel: 4, features: ['gần trung tâm', 'yên tĩnh'] },
-                { id: 16, name: 'Penthouse Estella H', location: 'TP. Thủ Đức', price: 22000, type: 'Penthouse', segment: 'Hạng sang', marketType: 'Thứ cấp', status: 'Có sẵn', minLevel: 7, features: ['view sông', 'đẳng cấp', 'an ninh 24/7'] },
+                { id: 1, name: 'Căn hộ The Origami', location: 'Quận 9', price: 2800, type: 'Căn hộ', segment: 'Bình dân', marketType: 'Sơ cấp', status: 'Dự án', minLevel: 1, features: ['gần TTTM', 'yên tĩnh', 'cho thuê tốt'], trendFactor: 1.0 },
+                { id: 2, name: 'Nhà phố The Classia', location: 'TP. Thủ Đức', price: 18000, type: 'Nhà phố', segment: 'Cao cấp', marketType: 'Sơ cấp', status: 'Dự án', minLevel: 5, features: ['cộng đồng văn minh', 'an ninh 24/7', 'gần trường quốc tế', 'tích sản'], trendFactor: 1.2 },
+                { id: 3, name: 'Biệt thự Aqua City', location: 'Đồng Nai', price: 15000, type: 'Biệt thự', segment: 'Cao cấp', marketType: 'Sơ cấp', status: 'Dự án', minLevel: 4, features: ['view sông', 'yên tĩnh', 'nhiều cây xanh', 'nghỉ dưỡng'], trendFactor: 0.9 },
+                { id: 4, name: 'Căn hộ Opal Skyline', location: 'Bình Dương', price: 2200, type: 'Căn hộ', segment: 'Bình dân', marketType: 'Sơ cấp', status: 'Dự án', minLevel: 1, features: ['gần khu công nghiệp', 'sinh lời tốt', 'dòng tiền'], trendFactor: 1.1 },
+                { id: 5, name: 'Căn hộ The Privé', location: 'TP. Thủ Đức', price: 10000, type: 'Căn hộ', segment: 'Hạng sang', marketType: 'Sơ cấp', status: 'Dự án', minLevel: 6, features: ['view sông', 'cộng đồng văn minh', 'tiện ích 5 sao', 'đẳng cấp'], trendFactor: 1.3 },
+                { id: 6, name: 'Đất nền Century City', location: 'Long Thành', price: 1900, type: 'Đất nền', segment: 'Bình dân', marketType: 'Sơ cấp', status: 'Dự án', minLevel: 2, features: ['gần sân bay', 'sinh lời tốt', 'đầu tư công'], trendFactor: 1.4 },
+                { id: 7, name: 'Officetel The Sun', location: 'Quận 4', price: 3500, type: 'Officetel', segment: 'Trung cấp', marketType: 'Sơ cấp', status: 'Dự án', minLevel: 3, features: ['gần trung tâm', 'vừa ở vừa làm việc', 'dòng tiền'], trendFactor: 0.8 },
+                { id: 8, name: 'Condotel The Sóng', location: 'Vũng Tàu', price: 3200, type: 'Condotel', segment: 'Trung cấp', marketType: 'Sơ cấp', status: 'Dự án', minLevel: 3, features: ['view biển', 'nghỉ dưỡng', 'cho thuê tốt'], trendFactor: 1.0 },
+                { id: 9, name: 'Căn hộ Vinhomes C.P', location: 'Bình Thạnh', price: 5500, type: 'Căn hộ', segment: 'Trung cấp', marketType: 'Thứ cấp', status: 'Có sẵn', minLevel: 2, features: ['gần trung tâm', 'tiện ích 5 sao', 'cộng đồng văn minh', 'cho thuê tốt'], trendFactor: 1.1 },
+                { id: 10, name: 'Nhà phố Phú Mỹ Hưng', location: 'Quận 7', price: 25000, type: 'Nhà phố', segment: 'Hạng sang', marketType: 'Thứ cấp', status: 'Có sẵn', minLevel: 6, features: ['gần trường quốc tế', 'an ninh 24/7', 'yên tĩnh'], trendFactor: 0.95 },
+                { id: 11, name: 'Biệt thự Thảo Điền', location: 'TP. Thủ Đức', price: 50000, type: 'Biệt thự', segment: 'Hàng hiệu', marketType: 'Thứ cấp', status: 'Có sẵn', minLevel: 8, features: ['view sông', 'yên tĩnh', 'cộng đồng văn minh', 'đẳng cấp'], trendFactor: 1.0 },
+                { id: 12, name: 'Căn hộ The Marq', location: 'Quận 1', price: 30000, type: 'Căn hộ', segment: 'Hàng hiệu', marketType: 'Thứ cấp', status: 'Có sẵn', minLevel: 7, features: ['gần trung tâm', 'tiện ích 5 sao', 'đẳng cấp'], trendFactor: 1.05 },
             ],
-            clientData: { names: ['Anh Khoa', 'Chị Mai', 'Cô Bảy', 'Chú Nam', 'Bạn Hùng', 'Chị Trúc', 'Anh Phát', 'Chị Thảo'] },
-            questionBank: [
-                { id: 'q1', text: "Để bắt đầu, anh/chị có thể chia sẻ mục đích chính mình tìm kiếm BĐS lần này là gì không ạ?", type: 'choice', answers: [ { text: 'Để gia đình ở', next: 'q2_o', persona: {key: 'purpose', value: 'Để ở'} }, { text: 'Để đầu tư sinh lời', next: 'q2_dt', persona: {key: 'purpose', value: 'Đầu tư'} }, { text: 'Vừa ở vừa đầu tư', next: 'q2_mix', persona: {key: 'purpose', value: 'Ở & Đầu tư'} } ] },
-                { id: 'q2_o', text: "Dạ, tìm một mái ấm cho gia đình là quan trọng nhất. Hiện tại gia đình mình có bao nhiêu thành viên ạ?", type: 'choice', answers: [ { text: 'Vợ chồng trẻ', next: 'q3_o', persona: {key: 'familySize', value: '2 người'} }, { text: 'Gia đình có con nhỏ', next: 'q3_o', persona: {key: 'familySize', value: '3-4 người'} }, { text: 'Gia đình đa thế hệ', next: 'q3_o', persona: {key: 'familySize', value: '5+ người'} } ] },
-                { id: 'q3_o', text: "Lối sống của gia đình mình thường thế nào ạ?", type: 'choice', answers: [ { text: 'Thích yên tĩnh, nghỉ dưỡng tại gia', next: 'q_common_1', persona: {key: 'lifestyle', value: 'yên tĩnh'} }, { text: 'Năng động, thích TTTM, giải trí', next: 'q_common_1', persona: {key: 'lifestyle', value: 'gần TTTM'} }, { text: 'Ưu tiên cho việc học của con', next: 'q_common_1', persona: {key: 'lifestyle', value: 'gần trường quốc tế'} } ] },
-                { id: 'q2_dt', text: "Dạ, đầu tư BĐS luôn là lựa chọn thông minh. Anh/chị đang quan tâm đến chiến lược đầu tư nào ạ?", type: 'choice', answers: [ { text: 'Lướt sóng ngắn hạn', next: 'q3_dt', persona: {key: 'investmentStrategy', value: 'Ngắn hạn'} }, { text: 'Cho thuê tạo dòng tiền', next: 'q3_dt', persona: {key: 'investmentStrategy', value: 'dòng tiền'} }, { text: 'Tích sản dài hạn', next: 'q3_dt', persona: {key: 'investmentStrategy', value: 'tích sản'} } ] },
-                { id: 'q3_dt', text: "Khẩu vị rủi ro của mình ở mức nào ạ?", type: 'choice', answers: [ { text: 'An toàn là trên hết, cần pháp lý rõ ràng', next: 'q_common_1', persona: {key: 'riskAppetite', value: 'an toàn'} }, { text: 'Chấp nhận rủi ro cao để có lợi nhuận đột phá', next: 'q_common_1', persona: {key: 'riskAppetite', value: 'mạo hiểm'} } ] },
-                { id: 'q2_mix', text: "Dạ, một lựa chọn 2 trong 1 rất hay. Vậy ưu tiên của mình sẽ nghiêng về phía nào hơn ạ?", type: 'choice', answers: [ { text: 'Chất lượng sống để ở là chính', next: 'q3_o', persona: {key: 'mixPriority', value: 'Ưu tiên ở'} }, { text: 'Tiềm năng tăng giá để đầu tư là chính', next: 'q3_dt', persona: {key: 'mixPriority', value: 'Ưu tiên đầu tư'} } ] },
-                { id: 'q_common_1', text: "Về vị trí, yếu tố nào là ưu tiên hàng đầu của anh/chị ạ?", type: 'choice', answers: [ { text: 'Gần trung tâm, tiện di chuyển', next: 'q_common_2', persona: {key: 'locationPriority', value: 'gần trung tâm'} }, { text: 'Yên tĩnh, gần gũi thiên nhiên', next: 'q_common_2', persona: {key: 'locationPriority', value: 'yên tĩnh'} }, { text: 'Khu vực có tiềm năng phát triển hạ tầng', next: 'q_common_2', persona: {key: 'locationPriority', value: 'đầu tư công'} } ] },
-                { id: 'q_common_2', text: "Về tài chính, anh/chị dự định ngân sách cho BĐS này khoảng bao nhiêu ạ?", type: 'choice', answers: [ { text: 'Dưới 3 tỷ', next: 'q_common_3', persona: {key: 'budget', value: '< 3 tỷ'} }, { text: 'Từ 3 - 7 tỷ', next: 'q_common_3', persona: {key: 'budget', value: '3-7 tỷ'} }, { text: 'Từ 7 - 15 tỷ', next: 'q_common_3', persona: {key: 'budget', value: '7-15 tỷ'} }, { text: 'Trên 15 tỷ', next: 'q_common_3', persona: {key: 'budget', value: '> 15 tỷ'} } ] },
-                { id: 'q_common_3', text: "Anh/chị dự định dùng 100% vốn tự có hay có sự hỗ trợ từ ngân hàng?", type: 'choice', answers: [ { text: '100% vốn tự có', next: 'q_common_4', persona: {key: 'financeSource', value: 'Tự có'} }, { text: 'Vay khoảng 50%', next: 'q_common_4', persona: {key: 'financeSource', value: 'Vay 50%'} } ] },
-                { id: 'q_common_4', text: "Điều gì ở nơi ở/khoản đầu tư hiện tại khiến anh/chị chưa hài lòng nhất?", type: 'choice', answers: [ { text: 'Không gian chật chội/thiết kế cũ', next: 'q_common_5', persona: {key: 'painPoint', value: 'Không gian'} }, { text: 'Môi trường ồn ào, an ninh kém', next: 'q_common_5', persona: {key: 'painPoint', value: 'Môi trường'} }, { text: 'Tiềm năng tăng giá không cao', next: 'q_common_5', persona: {key: 'painPoint', value: 'Lợi nhuận'} } ] },
-                { id: 'q_common_5', text: "Anh/chị có yêu cầu đặc biệt nào về tiện ích không?", type: 'choice', answers: [ { text: 'Cần có đủ tiện ích 5 sao: hồ bơi, gym, spa', next: 'q_common_6', persona: {key: 'amenities', value: 'tiện ích 5 sao'} }, { text: 'Chỉ cần các tiện ích cơ bản là đủ', next: 'q_common_6', persona: {key: 'amenities', value: 'Cơ bản'} } ] },
-                { id: 'q_common_6', text: "Về loại hình, anh/chị ưu tiên loại hình nào hơn?", type: 'choice', answers: [ { text: 'Căn hộ chung cư', next: 'q_common_7', persona: {key: 'propertyType', value: 'Căn hộ'} }, { text: 'Nhà phố/Biệt thự', next: 'q_common_7', persona: {key: 'propertyType', value: 'Nhà phố'} }, { text: 'Đất nền', next: 'q_common_7', persona: {key: 'propertyType', value: 'Đất nền'} } ] },
-                { id: 'q_common_7', text: "Anh/chị muốn nhận nhà ở ngay (thứ cấp) hay sẵn sàng chờ đợi một dự án trong tương lai (sơ cấp)?", type: 'choice', answers: [ { text: 'Cần nhà ở ngay', next: 'q_common_8', persona: {key: 'status', value: 'Có sẵn'} }, { text: 'Có thể chờ 1-2 năm', next: 'q_common_8', persona: {key: 'status', value: 'Dự án'} } ] },
-                { id: 'q_common_8', text: "Yếu tố phong thủy có quan trọng với anh/chị không ạ?", type: 'choice', answers: [ { text: 'Rất quan trọng, cần hợp hướng', next: 'END', persona: {key: 'fengshui', value: 'Quan trọng'} }, { text: 'Không quá quan trọng', next: 'END', persona: {key: 'fengshui', value: 'Không quan trọng'} } ] },
+            
+            customerPersonalities: [
+                { type: 'analytical', name: 'Nhà Phân Tích', traits: ['chi tiết', 'thận trọng', 'logic'], moodVariability: 0.2 },
+                { type: 'driver', name: 'Người Quyết Đoán', traits: ['nhanh gọn', 'quyết đoán', 'thực tế'], moodVariability: 0.3 },
+                { type: 'expressive', name: 'Người Cảm Tính', traits: ['nhiệt tình', 'cảm xúc', 'sáng tạo'], moodVariability: 0.8 },
+                { type: 'amiable', name: 'Người Thân Thiện', traits: ['hòa đồng', 'kiên nhẫn', 'hợp tác'], moodVariability: 0.1 }
             ],
-            ranks: [
-                { level: 1, name: 'Tập Sự', icon: 'fa-user-graduate', color: 'bg-slate-700 text-slate-300' },
-                { level: 3, name: 'Chuyên Viên', icon: 'fa-user-tie', color: 'bg-blue-500 text-white' },
-                { level: 5, name: 'Trưởng Nhóm', icon: 'fa-user-shield', color: 'bg-purple-500 text-white' },
-                { level: 8, name: 'Giám Đốc', icon: 'fa-user-crown', color: 'bg-amber-500 text-white' },
-                { level: 10, name: 'Siêu Sao', icon: 'fa-star', color: 'bg-yellow-400 text-yellow-900' }
-            ],
-            propertyIcons: {
-                'Căn hộ': `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 11-2 0V4H6v12a1 1 0 11-2 0V4zm3 4a1 1 0 100 2h4a1 1 0 100-2H7zm0 4a1 1 0 100 2h4a1 1 0 100-2H7z" clip-rule="evenodd" /></svg>`,
-                'Nhà phố': `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-teal-400" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>`,
-                'Biệt thự': `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-emerald-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 2h10v7h-2V7a1 1 0 00-1-1H8a1 1 0 00-1 1v5H5V5z" clip-rule="evenodd" /></svg>`,
-                'Đất nền': `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-amber-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm10 2H6v2h8V4zm0 4H6v2h8V8zm0 4H6v2h8v-2z" clip-rule="evenodd" /></svg>`,
-                'Officetel': `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-sky-400" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a1 1 0 001-1V2a1 1 0 00-1-1H4a1 1 0 00-1 1v1a1 1 0 001 1zm7 0h3a1 1 0 001-1V2a1 1 0 00-1-1h-3a1 1 0 00-1 1v1a1 1 0 001 1zM4 8h3a1 1 0 001-1V6a1 1 0 00-1-1H4a1 1 0 00-1 1v1a1 1 0 001 1zm7 0h3a1 1 0 001-1V6a1 1 0 00-1-1h-3a1 1 0 00-1 1v1a1 1 0 001 1zm-7 4h3a1 1 0 001-1v-1a1 1 0 00-1-1H4a1 1 0 00-1 1v1a1 1 0 001 1zm7 0h3a1 1 0 001-1v-1a1 1 0 00-1-1h-3a1 1 0 00-1 1v1a1 1 0 001 1z" /></svg>`,
-                'Condotel': `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-cyan-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.002 6.002 0 0110.421-2.43L15.67 5.67a1 1 0 00-1.414-1.414l-.887.887A6 6 0 014.332 8.027zm1.414 1.414a1 1 0 001.414 1.414l.887-.887a6 6 0 11-2.43-10.42L5.67 4.33a1 1 0 001.414 1.414l-.887.887z" clip-rule="evenodd" /></svg>`,
-                'Penthouse': `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-violet-500" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>`,
-                'Shophouse': `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-rose-500" viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H5.21l-.94-3.762A1 1 0 003 1z" /></svg>`
-            },
+            
             achievements: [
-                { id: 'first_deal', name: 'Giao Dịch Đầu Tiên', description: 'Hoàn thành deal đầu tiên', icon: 'fa-handshake', condition: (stats) => stats.totalDeals >= 1 },
-                { id: 'millionaire', name: 'Triệu Phú Hoa Hồng', description: 'Tích lũy $1,000,000 hoa hồng', icon: 'fa-sack-dollar', condition: (stats) => stats.totalEarnings >= 1000000 },
-                { id: 'perfect_streak', name: 'Chuỗi Hoàn Hảo', description: '5 deal liên tiếp thành công', icon: 'fa-fire', condition: (stats) => stats.maxStreak >= 5 },
-                { id: 'skill_master', name: 'Bậc Thầy Kỹ Năng', description: 'Nâng 1 kỹ năng lên cấp 5', icon: 'fa-crown', condition: (stats, player) => Object.values(player.skills).some(s => s.level >= 5) },
+                { id: 'first_deal', name: 'Giao Dịch Đầu Tiên', description: 'Hoàn thành deal đầu tiên', icon: 'fa-handshake', condition: () => gameState.stats.totalDeals >= 1 },
+                { id: 'millionaire', name: 'Triệu Phú', description: 'Có 1 triệu đô la', icon: 'fa-dollar-sign', condition: () => gameState.player.cash >= 1000000 },
+                { id: 'perfect_streak', name: 'Chuỗi Hoàn Hảo', description: '10 deal liên tiếp thành công', icon: 'fa-fire', condition: () => gameState.stats.currentStreak >= 10 },
+                { id: 'skill_master', name: 'Bậc Thầy Kỹ Năng', description: 'Nâng tất cả kỹ năng lên cấp 10', icon: 'fa-crown', condition: () => Object.values(gameState.player.skills).every(s => s.level >= 10) },
+                { id: 'speed_demon', name: 'Ác Quỷ Tốc Độ', description: 'Hoàn thành 5 deal trong 1 phút', icon: 'fa-bolt', condition: () => gameState.stats.fastDeals >= 5 },
+                { id: 'customer_whisperer', name: 'Thầy Bói Khách Hàng', description: 'Đạt 95% tỷ lệ thành công', icon: 'fa-user-tie', condition: () => gameState.stats.successRate >= 0.95 }
+            ],
+            
+            dailyChallenges: [
+                { id: 'daily_deals', name: 'Hoàn thành 3 giao dịch', target: 3, reward: 100, type: 'deals' },
+                { id: 'daily_earnings', name: 'Kiếm $5000', target: 5000, reward: 150, type: 'earnings' },
+                { id: 'daily_skills', name: 'Nâng 2 kỹ năng', target: 2, reward: 200, type: 'skills' },
+                { id: 'daily_streak', name: 'Đạt chuỗi 5 deal', target: 5, reward: 250, type: 'streak' }
+            ],
+            
+            marketTrends: [
+                { segment: 'Bình dân', trend: 'up', factor: 1.1, reason: 'Nhu cầu tăng cao' },
+                { segment: 'Trung cấp', trend: 'stable', factor: 1.0, reason: 'Thị trường ổn định' },
+                { segment: 'Cao cấp', trend: 'down', factor: 0.95, reason: 'Kinh tế khó khăn' },
+                { segment: 'Hạng sang', trend: 'up', factor: 1.05, reason: 'Đầu tư nước ngoài' }
+            ],
+            
+            seasonalEvents: [
+                { id: 'tet_bonus', name: 'Tết Nguyên Đán', active: true, bonus: 1.5, duration: 7 },
+                { id: 'summer_sale', name: 'Khuyến Mại Hè', active: false, bonus: 1.3, duration: 14 },
+                { id: 'year_end', name: 'Cuối Năm', active: false, bonus: 1.4, duration: 10 }
+            ],
+            
+            questions: [
+                { id: 'q1', text: "Anh/chị đang tìm kiếm loại bất động sản nào ạ?", type: 'choice', 
+                  answers: [
+                      { text: 'Căn hộ chung cư hiện đại', next: 'q2', persona: {key: 'propertyType', value: 'Căn hộ'} },
+                      { text: 'Nhà phố/Biệt thự riêng tư', next: 'q2', persona: {key: 'propertyType', value: 'Nhà phố'} },
+                      { text: 'Đất nền để xây dựng', next: 'q2', persona: {key: 'propertyType', value: 'Đất nền'} },
+                      { text: 'Officetel đa năng', next: 'q2', persona: {key: 'propertyType', value: 'Officetel'} }
+                  ]
+                },
+                { id: 'q2', text: "Mục đích chính của anh/chị là gì?", type: 'choice', 
+                  answers: [
+                      { text: 'Ở để sinh sống lâu dài', next: 'q3', persona: {key: 'purpose', value: 'Để ở'} },
+                      { text: 'Đầu tư sinh lời', next: 'q3', persona: {key: 'purpose', value: 'Đầu tư'} },
+                      { text: 'Vừa ở vừa đầu tư', next: 'q3', persona: {key: 'purpose', value: 'Ở & Đầu tư'} }
+                  ]
+                },
+                { id: 'q3', text: "Ngân sách dự kiến của anh/chị trong khoảng nào?", type: 'choice', 
+                  answers: [
+                      { text: 'Dưới 3 tỷ đồng', next: 'q4', persona: {key: 'budget', value: '< 3 tỷ'} },
+                      { text: '3-7 tỷ đồng', next: 'q4', persona: {key: 'budget', value: '3-7 tỷ'} },
+                      { text: '7-15 tỷ đồng', next: 'q4', persona: {key: 'budget', value: '7-15 tỷ'} },
+                      { text: 'Trên 15 tỷ đồng', next: 'q4', persona: {key: 'budget', value: '> 15 tỷ'} }
+                  ]
+                },
+                { id: 'q4', text: "Vị trí nào là ưu tiên hàng đầu?", type: 'choice', 
+                  answers: [
+                      { text: 'Gần trung tâm, tiện di chuyển', next: 'q5', persona: {key: 'location', value: 'gần trung tâm'} },
+                      { text: 'Khu vực yên tĩnh, ít ồn ào', next: 'q5', persona: {key: 'location', value: 'yên tĩnh'} },
+                      { text: 'Gần trường học, bệnh viện', next: 'q5', persona: {key: 'location', value: 'gần trường quốc tế'} },
+                      { text: 'Khu vực có tiềm năng phát triển', next: 'q5', persona: {key: 'location', value: 'đầu tư công'} }
+                  ]
+                },
+                { id: 'q5', text: "Anh/chị cần nhà ngay hay có thể chờ dự án?", type: 'choice', 
+                  answers: [
+                      { text: 'Cần nhà ở ngay lập tức', next: 'END', persona: {key: 'status', value: 'Có sẵn'} },
+                      { text: 'Có thể chờ 1-2 năm cho dự án', next: 'END', persona: {key: 'status', value: 'Dự án'} }
+                  ]
+                }
             ]
         };
 
-        // --- GAME STATE ---
-        let gameState = {};
-        let customerChart = null;
-
-        // --- SOUNDS ---
-        const sounds = {
-            success: new Tone.Synth().toDestination(),
-            failure: new Tone.Synth({ oscillator: { type: 'square' } }).toDestination(),
-            levelup: new Tone.PolySynth().toDestination(),
-            click: new Tone.MembraneSynth().toDestination(),
+        // === GAME STATE ===
+        let gameState = {
+            player: {
+                level: 1,
+                exp: 0,
+                cash: 500,
+                skills: {
+                    communication: { name: 'Giao Tiếp', level: 1, cost: 100, icon: 'fa-comments' },
+                    negotiation: { name: 'Đàm Phán', level: 1, cost: 150, icon: 'fa-handshake' },
+                    marketing: { name: 'Marketing', level: 1, cost: 120, icon: 'fa-bullhorn' },
+                    analysis: { name: 'Phân Tích', level: 1, cost: 200, icon: 'fa-chart-line' },
+                    psychology: { name: 'Tâm Lý Học', level: 1, cost: 180, icon: 'fa-brain' }
+                }
+            },
+            stats: {
+                totalDeals: 0,
+                successfulDeals: 0,
+                successRate: 0,
+                currentStreak: 0,
+                maxStreak: 0,
+                totalEarnings: 0,
+                fastDeals: 0
+            },
+            journey: {
+                stage: 'IDLE', // IDLE, DISCOVERY, ANALYSIS, PROPOSAL, DEAL
+                client: null,
+                currentQuestionId: null,
+                persona: {},
+                selectedPropertyId: null
+            },
+            achievements: {},
+            dailyChallenge: null,
+            challengeProgress: 0,
+            currentTab: 'game',
+            expToNextLevel: 100,
+            marketUpdate: Date.now()
         };
-        sounds.levelup.set({ "envelope": { "attack": 0.01, "decay": 0.4, "sustain": 0.1, "release": 1.4 }, "oscillator": { "type": "fatsawtooth", "count": 3, "spread": 30 } });
 
-        // --- UTILITY & RENDER FUNCTIONS ---
-        const el = (id) => document.getElementById(id);
-        const formatCurrency = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(value);
-        const showNotification = (message, type = 'success') => {
-            const icon = type === 'success' ? 'fa-check-circle' : 'fa-times-circle';
+        // === UTILITY FUNCTIONS ===
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(value);
+        }
+
+        function showNotification(message, type = 'success') {
             const notification = document.createElement('div');
-            notification.className = `notification`;
-            notification.style.background = type === 'success' ? 'linear-gradient(135deg, #11998e, #38ef7d)' : 'linear-gradient(135deg, #f5576c, #f093fb)';
-            notification.innerHTML = `<i class="fas ${icon} mr-2"></i>${message}`;
-            el('notification-area').appendChild(notification);
+            notification.className = `notification ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'times'} mr-2"></i>${message}`;
+            document.getElementById('notification-area').appendChild(notification);
             setTimeout(() => notification.remove(), 5000);
-        };
-
-        // --- CORE UI RENDER FUNCTIONS ---
-        function updatePlayerProfilePanel() {
-            const currentRank = GAME_DATA.ranks.slice().reverse().find(r => gameState.player.level >= r.level);
-            const expPercent = (gameState.player.exp / gameState.expToNextLevel) * 100;
-            el('player-profile-panel').innerHTML = `
-                <h2 class="text-2xl font-extrabold text-white mb-4">Hồ Sơ Môi Giới</h2>
-                <div class="text-center mb-4">
-                    <div class="w-24 h-24 mx-auto mb-3 rounded-full flex items-center justify-center bg-white/10">
-                        <i class="fas ${currentRank.icon} text-4xl text-white"></i>
-                    </div>
-                    <div class="level-badge inline-flex ${currentRank.color}">${currentRank.name} - Cấp ${gameState.player.level}</div>
-                </div>
-                <div class="space-y-4">
-                    <div>
-                        <div class="flex justify-between items-center mb-1 text-sm"><span class="text-slate-400">Kinh nghiệm</span><span class="text-slate-300">${gameState.player.exp} / ${gameState.expToNextLevel}</span></div>
-                        <div class="progress-bar-container"><div class="progress-bar-fill" style="width: ${expPercent}%;"></div></div>
-                    </div>
-                    <div>
-                        <p class="text-sm text-slate-400">Hoa Hồng</p>
-                        <p class="text-3xl font-bold text-green-400">${formatCurrency(gameState.player.cash)}</p>
-                    </div>
-                </div>`;
         }
 
-        function updateSkillsPanel() {
-            let html = `<h2 class="text-2xl font-extrabold text-white mb-4">Kỹ Năng</h2><div class="space-y-3">`;
-            for (const [key, skill] of Object.entries(gameState.player.skills)) {
-                const canAfford = gameState.player.cash >= skill.cost;
-                html += `<div class="glass-card p-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <i class="fas ${skill.icon} text-2xl text-purple-400"></i>
-                            <div>
-                                <p class="font-bold text-white">${skill.name}</p>
-                                <p class="text-sm text-slate-400">Cấp ${skill.level}</p>
-                            </div>
-                        </div>
-                        <button class="btn ${canAfford ? 'btn-primary' : 'disabled'} text-xs px-4 py-2" onclick="upgradeSkill('${key}')" ${!canAfford ? 'disabled' : ''}>${formatCurrency(skill.cost)}</button>
-                    </div>
-                </div>`;
-            }
-            html += `</div>`;
-            el('skills-panel').innerHTML = html;
-        }
-
-        function updateMainGameArea() {
-            const journey = gameState.journey;
-            let html = '';
-            if (journey.stage === 'IDLE') {
-                html = `<div class="flex flex-col items-center justify-center h-full text-center fade-in-up">
-                    <i class="fas fa-search-dollar text-8xl text-slate-500 mb-6"></i>
-                    <h2 class="text-4xl font-extrabold text-white mb-4">Sẵn Sàng Chinh Phục?</h2>
-                    <p class="text-slate-300 mb-8 max-w-md">Mỗi khách hàng là một câu chuyện. Hãy lắng nghe, thấu hiểu và tìm ra chìa khóa thành công.</p>
-                    <button class="btn btn-primary text-lg px-8 py-4" onclick="startJourney()"><i class="fas fa-rocket mr-3"></i>Tìm Khách Hàng Mới</button>
-                </div>`;
-            } else if (journey.stage === 'DISCOVERY') {
-                const question = GAME_DATA.questionBank.find(q => q.id === journey.currentQuestionId);
-                const progress = (Object.keys(journey.persona).length / 12) * 100;
-                html = `<div class="flex flex-col h-full fade-in-up">
-                    <div class="mb-6">
-                        <p class="text-sm text-slate-400 text-center font-semibold">Giai đoạn: Khám phá Chân dung Khách hàng</p>
-                        <div class="progress-bar-container mt-2"><div class="progress-bar-fill" style="width: ${progress}%"></div></div>
-                    </div>
-                    <div class="glass-card p-6 mb-6 shadow-inner">
-                        <p class="text-xl text-white font-medium italic">"${question.text}"</p>
-                    </div>
-                    <div class="space-y-3 flex-grow overflow-y-auto pr-2">
-                        ${question.answers.map((opt, index) => `<div class="dialogue-option" onclick="handleDialogueChoice(${index})"><p class="font-semibold text-white">${opt.text}</p></div>`).join('')}
-                    </div>
-                </div>`;
-            } else if (journey.stage === 'ANALYSIS') {
-                html = `<div class="flex flex-col items-center justify-center h-full text-center">
-                    <div class="animate-spin w-16 h-16 border-4 border-purple-400 border-t-transparent rounded-full mb-6"></div>
-                    <h3 class="text-2xl font-bold text-white mb-4">Đang Phân Tích Chân Dung Khách Hàng</h3>
-                    <p class="text-slate-300">AI đang xử lý thông tin để tạo profile hoàn hảo...</p>
-                </div>`;
-            } else if (journey.stage === 'PROPOSAL') {
-                const availableProperties = GAME_DATA.properties.filter(p => p.minLevel <= gameState.player.level);
-                html = `<div class="h-full flex flex-col fade-in-up">
-                    <div class="mb-6 text-center">
-                        <h3 class="text-2xl font-bold text-white mb-2">Chọn Sản Phẩm Phù Hợp</h3>
-                        <p class="text-slate-300">Dựa trên phân tích, hãy chọn BĐS phù hợp nhất</p>
-                    </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 overflow-y-auto pr-2">
-                        ${availableProperties.map(property => {
-                            const isSelected = gameState.journey.selectedPropertyId === property.id;
-                            return `<div class="glass-card p-4 cursor-pointer border-2 ${isSelected ? 'border-purple-400' : 'border-transparent'}" onclick="selectProperty(${property.id})">
-                                <div class="flex items-start gap-4">
-                                    <div class="w-16 h-16 bg-white/10 rounded-lg flex items-center justify-center">${GAME_DATA.propertyIcons[property.type]}</div>
-                                    <div class="flex-1">
-                                        <h4 class="font-bold text-white">${property.name}</h4>
-                                        <p class="text-sm text-slate-400">${property.location} • ${property.segment}</p>
-                                        <p class="text-lg font-bold text-green-400 mt-2">${formatCurrency(property.price * 1000)}</p>
-                                    </div>
-                                </div>
-                            </div>`;
-                        }).join('')}
-                    </div>
-                    <div class="mt-6 text-center">
-                        <button class="btn btn-primary text-lg px-8 py-4 ${gameState.journey.selectedPropertyId ? '' : 'disabled'}" onclick="attemptDeal()" ${!gameState.journey.selectedPropertyId ? 'disabled' : ''}>
-                            <i class="fas fa-handshake mr-3"></i>Thực Hiện Giao Dịch
-                        </button>
-                    </div>
-                </div>`;
-            }
-            el('main-game-area').innerHTML = html;
-        }
-
-        function updateContextPanel() {
-            const journey = gameState.journey;
-            let html = '';
-            if (journey.stage === 'IDLE' || journey.stage === 'ANALYSIS') {
-                html = `<h3 class="text-xl font-extrabold text-white mb-4">Thông Tin Thị Trường</h3>`;
-            } else {
-                html = renderCustomerDossier(journey.stage === 'PROPOSAL');
-            }
-            el('context-panel').innerHTML = html;
-            if (journey.stage === 'PROPOSAL') {
-                drawCustomerChart();
-            }
-        }
-        
-        function renderCustomerDossier(isFinal = false) {
-            const persona = gameState.journey.persona;
-            const fields = [
-                { key: 'purpose', label: 'Mục đích', icon: 'fa-bullseye' }, { key: 'familySize', label: 'Gia đình', icon: 'fa-users' }, { key: 'investmentStrategy', label: 'Chiến lược ĐT', icon: 'fa-chart-line' },
-                { key: 'lifestyle', label: 'Lối sống', icon: 'fa-martini-glass-citrus' }, { key: 'riskAppetite', label: 'Khẩu vị rủi ro', icon: 'fa-bolt' }, { key: 'locationPriority', label: 'Ưu tiên Vị trí', icon: 'fa-map-marker-alt' }, 
-                { key: 'budget', label: 'Ngân sách', icon: 'fa-wallet' }, { key: 'financeSource', label: 'Nguồn vốn', icon: 'fa-university' }, { key: 'painPoint', label: 'Nỗi đau', icon: 'fa-heart-broken' }, 
-                { key: 'amenities', label: 'Tiện ích', icon: 'fa-swimming-pool' }, { key: 'propertyType', label: 'Loại hình', icon: 'fa-home' }, { key: 'status', label: 'Tình trạng', icon: 'fa-hourglass-half' }, 
-                { key: 'fengshui', label: 'Phong thủy', icon: 'fa-wind' }
-            ];
+        function playSound(type) {
+            // Simple sound effects using Web Audio API
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
             
-            let dossierHTML = `<div class="fade-in-up"><h2 class="text-2xl font-extrabold text-white mb-2 flex items-center"><i class="fas fa-address-card mr-3 text-purple-400"></i>Hồ Sơ Khách Hàng</h2>`;
-            if (isFinal) {
-                dossierHTML += `<p class="text-sm text-slate-400 mb-4">Phân tích hoàn tất. Dựa vào hồ sơ này để chọn sản phẩm.</p><div class="mb-4"><canvas id="customerChart"></canvas></div>`;
-            } else {
-                dossierHTML += `<p class="text-sm text-slate-400 mb-4">Đang thu thập thông tin...</p>`;
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            switch(type) {
+                case 'success':
+                    oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+                    break;
+                case 'failure':
+                    oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.3);
+                    break;
+                case 'levelup':
+                    oscillator.frequency.setValueAtTime(523, audioCtx.currentTime);
+                    oscillator.frequency.setValueAtTime(659, audioCtx.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(784, audioCtx.currentTime + 0.2);
+                    break;
             }
-            dossierHTML += `<div class="space-y-1">`;
-
-            fields.forEach(field => {
-                if (persona[field.key]) {
-                    dossierHTML += `<div class="dossier-item">
-                        <span class="key text-slate-400"><i class="fas ${field.icon} fa-fw w-5"></i>${field.label}</span>
-                        <span class="value text-white">${persona[field.key]}</span>
-                    </div>`;
-                }
-            });
-            dossierHTML += `</div></div>`;
-            return dossierHTML;
+            
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + 0.3);
         }
 
-        function drawCustomerChart() {
-            const ctx = document.getElementById('customerChart').getContext('2d');
-            const persona = gameState.journey.persona;
-            const data = {
-                labels: ['Vị trí', 'Giá', 'Tiện ích', 'Không gian', 'Sinh lời', 'An ninh'],
-                datasets: [{
-                    label: 'Mức độ ưu tiên',
-                    data: [
-                        persona.locationPriority === 'gần trung tâm' ? 9 : 5,
-                        persona.budget === '< 3 tỷ' ? 9 : 6,
-                        persona.amenities === 'tiện ích 5 sao' ? 8 : 4,
-                        persona.painPoint === 'Không gian' ? 9 : 5,
-                        persona.purpose?.includes('Đầu tư') ? 9 : 4,
-                        persona.painPoint === 'Môi trường' ? 8 : 5
-                    ],
-                    backgroundColor: 'rgba(167, 139, 250, 0.2)',
-                    borderColor: 'rgba(167, 139, 250, 1)',
-                    borderWidth: 2,
-                    pointBackgroundColor: 'rgba(167, 139, 250, 1)',
-                }]
-            };
-            if (customerChart) customerChart.destroy();
-            customerChart = new Chart(ctx, {
-                type: 'radar',
-                data: data,
-                options: {
-                    responsive: true, maintainAspectRatio: true,
-                    scales: {
-                        r: {
-                            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            pointLabels: { font: { size: 12, weight: 'bold' }, color: '#cbd5e1' },
-                            ticks: { display: false, beginAtZero: true, max: 10, backdropColor: 'transparent' }
-                        }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-        
-        function updateAchievementsPanel() {
-            let html = `<h2 class="text-3xl font-extrabold text-white mb-6"><i class="fas fa-trophy text-yellow-400 mr-3"></i>Thành Tựu</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[70vh] overflow-y-auto pr-2">`;
-            for(const achievement of GAME_DATA.achievements) {
-                const isUnlocked = gameState.achievements[achievement.id];
-                html += `<div class="glass-card p-4 flex items-center gap-4 ${isUnlocked ? 'opacity-100' : 'opacity-50'}">
-                    <i class="fas ${achievement.icon} text-3xl ${isUnlocked ? 'text-yellow-400' : 'text-slate-500'}"></i>
-                    <div>
-                        <p class="font-bold text-white">${achievement.name}</p>
-                        <p class="text-sm text-slate-400">${achievement.description}</p>
-                    </div>
-                </div>`;
-            }
-            html += `</div>`;
-            el('achievements-panel').innerHTML = html;
-        }
-        
-        function updateGuidePanel() {
-            el('guide-panel').innerHTML = `
-                <h2 class="text-3xl font-extrabold text-white mb-6">Sổ Tay Siêu Sao</h2>
-                <div class="space-y-6 text-left text-slate-300">
-                    <div>
-                        <h3 class="text-xl font-bold text-purple-400 mb-2">Mục Tiêu</h3>
-                        <p>Vươn lên từ một <strong>Tập Sự</strong> thành <strong>Siêu Sao</strong> huyền thoại bằng cách chốt deal, tích lũy hoa hồng, và nâng cấp kỹ năng.</p>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-purple-400 mb-2">Vòng Lặp Gameplay</h3>
-                        <ol class="list-decimal list-inside space-y-2">
-                            <li><strong>Khám Phá:</strong> Dẫn dắt cuộc đối thoại dài hơi để thu thập thông tin, xây dựng Chân Dung Persona của khách hàng.</li>
-                            <li><strong>Phân Tích & Đề Xuất:</strong> Dựa vào Infographic (biểu đồ radar) để hiểu sâu về nhu cầu khách hàng, sau đó chọn 1 sản phẩm duy nhất từ giỏ hàng.</li>
-                            <li><strong>Chốt Deal:</strong> Tỷ lệ thành công dựa trên độ khớp sản phẩm, kỹ năng, và sự thấu hiểu của bạn.</li>
-                        </ol>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-bold text-purple-400 mb-2">Hệ Thống Kỹ Năng</h3>
-                        <p>Nâng cấp kỹ năng không chỉ tăng tỷ lệ thành công. Kỹ năng <strong>Giao Tiếp</strong> và <strong>Tâm Lý Học</strong> cao sẽ mở khóa các câu hỏi tình huống khó hơn, giúp bạn khai thác thông tin sâu hơn và tăng mạnh điểm "Thấu hiểu".</p>
-                    </div>
-                     <div>
-                        <h3 class="text-xl font-bold text-purple-400 mb-2">Thành Tựu</h3>
-                        <p>Hoàn thành các mục tiêu đa dạng từ tích lũy tài sản, chốt nhiều deal, đến việc trở thành bậc thầy một kỹ năng nào đó để nhận các danh hiệu cao quý.</p>
-                    </div>
-                </div>
-            `;
-        }
-
-        // --- GAME LOGIC ---
-        function initGameState() {
-            const savedState = localStorage.getItem('sieuSaoMoiGioiV3');
-            if (savedState) {
-                gameState = JSON.parse(savedState);
-                if (!gameState.player.skills.psychology) {
-                    gameState.player.skills.psychology = { name: 'Tâm Lý Học', level: 1, cost: 180, icon: 'fa-brain' };
-                }
-            } else {
-                gameState = {
-                    player: { level: 1, exp: 0, cash: 500, skills: { communication: { name: 'Giao Tiếp', level: 1, cost: 100, icon: 'fa-comments' }, negotiation: { name: 'Đàm Phán', level: 1, cost: 150, icon: 'fa-handshake' }, marketing: { name: 'Marketing', level: 1, cost: 120, icon: 'fa-bullhorn' }, analysis: { name: 'Phân Tích', level: 1, cost: 200, icon: 'fa-chart-line' }, psychology: { name: 'Tâm Lý Học', level: 1, cost: 180, icon: 'fa-brain' } } },
-                    stats: { totalDeals: 0, successfulDeals: 0, successRate: 0, currentStreak: 0, maxStreak: 0, totalEarnings: 0 },
-                    journey: { stage: 'IDLE' },
-                    achievements: {},
-                    expToNextLevel: 100,
-                };
-            }
-        }
-
-        function saveGame() {
-            localStorage.setItem('sieuSaoMoiGioiV3', JSON.stringify(gameState));
-        }
-
+        // === GAME LOGIC ===
         function addExp(amount) {
             const oldLevel = gameState.player.level;
-            gameState.player.exp += Math.round(amount);
+            gameState.player.exp += amount;
+            
             while (gameState.player.exp >= gameState.expToNextLevel) {
                 gameState.player.exp -= gameState.expToNextLevel;
                 gameState.player.level++;
-                gameState.expToNextLevel = Math.round(gameState.expToNextLevel * 1.8);
+                gameState.expToNextLevel = Math.round(gameState.expToNextLevel * 1.5);
+                
+                if (gameState.player.level > oldLevel) {
+                    showLevelUpModal();
+                    checkAchievements();
+                }
             }
-            if (gameState.player.level > oldLevel) {
-                showLevelUpModal(gameState.player.level);
-            }
-            updatePlayerProfilePanel();
+            
+            updateUI();
         }
 
-        function upgradeSkill(key) {
-            const skill = gameState.player.skills[key];
+        function upgradeSkill(skillKey) {
+            const skill = gameState.player.skills[skillKey];
             if (gameState.player.cash >= skill.cost) {
                 gameState.player.cash -= skill.cost;
                 skill.level++;
-                skill.cost = Math.round(skill.cost * 1.6);
-                sounds.success.triggerAttackRelease("E5", "8n");
+                skill.cost = Math.round(skill.cost * 1.4);
+                
+                updateChallengeProgress('skills', 1);
+                playSound('success');
                 showNotification(`${skill.name} đã được nâng lên cấp ${skill.level}!`);
-                updateSkillsPanel();
-                updatePlayerProfilePanel();
+                updateUI();
                 checkAchievements();
             }
         }
 
         function startJourney() {
-            sounds.click.triggerAttackRelease("C2", "8n");
+            const customerTypes = GAME_DATA.customerPersonalities;
+            const randomCustomer = customerTypes[Math.floor(Math.random() * customerTypes.length)];
+            
             gameState.journey = {
                 stage: 'DISCOVERY',
-                client: { name: GAME_DATA.clientData.names[Math.floor(Math.random() * GAME_DATA.clientData.names.length)], emotionalFactor: Math.floor(Math.random() * 41) - 20 },
-                currentQuestionId: 'q1', persona: {}, insightPoints: 0, selectedPropertyId: null,
+                client: {
+                    name: generateCustomerName(),
+                    personality: randomCustomer,
+                    mood: generateMood(randomCustomer.moodVariability),
+                    patience: Math.random() * 100 + 50
+                },
+                currentQuestionId: 'q1',
+                persona: {},
+                selectedPropertyId: null,
+                startTime: Date.now()
             };
-            updateAllUI();
+            
+            updateUI();
+        }
+
+        function generateCustomerName() {
+            const firstNames = ['Anh Khoa', 'Chị Mai', 'Cô Bảy', 'Chú Nam', 'Bạn Hùng', 'Chị Trúc', 'Anh Phát', 'Chị Thảo', 'Anh Dũng', 'Chị Lan'];
+            return firstNames[Math.floor(Math.random() * firstNames.length)];
+        }
+
+        function generateMood(variability) {
+            const baseMood = 50 + (Math.random() - 0.5) * variability * 100;
+            return Math.max(0, Math.min(100, baseMood));
         }
 
         function handleDialogueChoice(choiceIndex) {
-            sounds.click.triggerAttackRelease("C3", "8n");
-            const journey = gameState.journey;
-            const question = GAME_DATA.questionBank.find(q => q.id === journey.currentQuestionId);
-            const answer = question.answers[choiceIndex];
-            if (answer.persona) { journey.persona[answer.persona.key] = answer.persona.value; journey.insightPoints += 10; }
-            if (answer.next === 'END') {
-                journey.stage = 'ANALYSIS';
-                setTimeout(() => {
-                    journey.stage = 'PROPOSAL';
-                    updateAllUI();
-                }, 2500);
-            } else {
-                journey.currentQuestionId = answer.next;
+            const question = GAME_DATA.questions.find(q => q.id === gameState.journey.currentQuestionId);
+            const choice = question.answers[choiceIndex];
+            
+            // Update persona
+            if (choice.persona) {
+                gameState.journey.persona[choice.persona.key] = choice.persona.value;
             }
-            updateAllUI();
+            
+            // Update customer mood based on choice
+            const moodChange = (Math.random() - 0.5) * 20;
+            gameState.journey.client.mood = Math.max(0, Math.min(100, gameState.journey.client.mood + moodChange));
+            
+            if (choice.next === 'END') {
+                gameState.journey.stage = 'ANALYSIS';
+                setTimeout(() => {
+                    gameState.journey.stage = 'PROPOSAL';
+                    updateUI();
+                }, 2000);
+            } else {
+                gameState.journey.currentQuestionId = choice.next;
+            }
+            
+            updateUI();
         }
 
-        function selectProperty(propId) {
-            sounds.click.triggerAttackRelease("C3", "8n");
+        function selectProperty(propertyId) {
             if (gameState.journey.stage !== 'PROPOSAL') return;
-            gameState.journey.selectedPropertyId = propId;
-            updateMainGameArea();
+            
+            gameState.journey.selectedPropertyId = propertyId;
+            updateUI();
         }
 
         function attemptDeal() {
+            const property = GAME_DATA.properties.find(p => p.id === gameState.journey.selectedPropertyId);
+            const client = gameState.journey.client;
             const persona = gameState.journey.persona;
-            const prop = GAME_DATA.properties.find(p => p.id === gameState.journey.selectedPropertyId);
-            const skills = gameState.player.skills;
-            let matchingScore = 0;
-
-            if (persona.propertyType === prop.type) matchingScore += 15;
-            if (persona.status === prop.status) matchingScore += 15;
-            if (persona.budget && prop.segment) {
-                const budgetRanges = { '< 3 tỷ': ['Nhà ở xã hội', 'Bình dân'], '3-7 tỷ': ['Bình dân', 'Trung cấp'], '7-15 tỷ': ['Cao cấp'], '> 15 tỷ': ['Hạng sang', 'Hàng hiệu'] };
-                if (budgetRanges[persona.budget]?.includes(prop.segment)) matchingScore += 10;
-            }
-            prop.features.forEach(feature => { if (Object.values(persona).includes(feature)) { matchingScore += 5; } });
             
-            const skillBonus = (skills.communication.level) + (skills.negotiation.level * 2) + (skills.analysis.level * 2) + (skills.psychology.level * 1.5);
-            const insightBonus = Math.round(gameState.journey.insightPoints / 5);
-            const emotionalFactor = gameState.journey.client.emotionalFactor;
-
-            const successChance = Math.max(5, Math.min(95, matchingScore + skillBonus + insightBonus + emotionalFactor));
+            // Calculate success factors
+            let successScore = 0;
+            const factors = {};
+            
+            // Property matching
+            let propertyMatch = 0;
+            if (persona.propertyType === property.type) propertyMatch += 25;
+            if (persona.status === property.status) propertyMatch += 15;
+            
+            // Budget matching
+            let budgetMatch = 0;
+            const budgetRanges = {
+                '< 3 tỷ': [0, 3000],
+                '3-7 tỷ': [3000, 7000],
+                '7-15 tỷ': [7000, 15000],
+                '> 15 tỷ': [15000, Infinity]
+            };
+            
+            if (persona.budget) {
+                const [min, max] = budgetRanges[persona.budget];
+                if (property.price >= min && property.price <= max) budgetMatch = 20;
+            }
+            
+            // Feature matching
+            let featureMatch = 0;
+            if (persona.location && property.features.includes(persona.location)) featureMatch += 15;
+            if (persona.purpose === 'Đầu tư' && property.features.some(f => ['sinh lời tốt', 'dòng tiền', 'tích sản'].includes(f))) {
+                featureMatch += 10;
+            }
+            
+            // Skills bonus
+            const skillBonus = Object.values(gameState.player.skills).reduce((sum, skill) => sum + skill.level, 0) * 2;
+            
+            // Customer mood and personality
+            const moodFactor = (client.mood - 50) / 2;
+            const personalityBonus = client.personality.type === 'analytical' ? 
+                (propertyMatch > 20 ? 10 : -10) : 
+                (featureMatch > 10 ? 15 : 0);
+            
+            // Market trend
+            const marketTrend = GAME_DATA.marketTrends.find(t => t.segment === property.segment);
+            const trendBonus = (marketTrend.factor - 1) * 50;
+            
+            successScore = propertyMatch + budgetMatch + featureMatch + skillBonus + moodFactor + personalityBonus + trendBonus;
+            
+            factors['Khớp sản phẩm'] = { value: propertyMatch, max: 40 };
+            factors['Khớp ngân sách'] = { value: budgetMatch, max: 20 };
+            factors['Khớp tính năng'] = { value: featureMatch, max: 25 };
+            factors['Kỹ năng'] = { value: skillBonus, max: 50 };
+            factors['Tâm trạng KH'] = { value: moodFactor, max: 25 };
+            factors['Xu hướng thị trường'] = { value: trendBonus, max: 15 };
+            
+            const successChance = Math.max(5, Math.min(95, successScore));
             const isSuccess = Math.random() * 100 < successChance;
             
-            gameState.stats.totalDeals++;
-            if(isSuccess) {
-                const commission = Math.round(prop.price * 0.02 * 1000);
-                const expGained = Math.round(prop.price / 10);
+            // Calculate rewards
+            let commission = 0;
+            let expGain = 0;
+            
+            if (isSuccess) {
+                commission = Math.round(property.price * (0.015 + Math.random() * 0.01));
+                expGain = Math.round(property.price / 8) + Math.round(successScore);
+                
+                // Apply seasonal bonus
+                const activeEvent = GAME_DATA.seasonalEvents.find(e => e.active);
+                if (activeEvent) {
+                    commission *= activeEvent.bonus;
+                    expGain = Math.round(expGain * activeEvent.bonus);
+                }
+                
                 gameState.player.cash += commission;
-                addExp(expGained);
                 gameState.stats.successfulDeals++;
                 gameState.stats.currentStreak++;
                 gameState.stats.maxStreak = Math.max(gameState.stats.maxStreak, gameState.stats.currentStreak);
-                gameState.stats.totalEarnings += commission;
-                sounds.success.triggerAttackRelease("C5", "8n");
-                showResultModal(true, commission, expGained, successChance);
+                
+                // Fast deal bonus
+                const dealTime = Date.now() - gameState.journey.startTime;
+                if (dealTime < 60000) { // Under 1 minute
+                    gameState.stats.fastDeals++;
+                    expGain *= 1.2;
+                    showNotification('Bonus: Giao dịch nhanh!', 'success');
+                }
+                
+                playSound('success');
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
             } else {
-                const expGained = 50;
-                addExp(expGained);
+                expGain = 25;
                 gameState.stats.currentStreak = 0;
-                sounds.failure.triggerAttackRelease("C3", "4n");
-                showResultModal(false, 0, expGained, successChance);
+                playSound('failure');
             }
+            
+            gameState.stats.totalDeals++;
+            gameState.stats.totalEarnings += commission;
             gameState.stats.successRate = gameState.stats.successfulDeals / gameState.stats.totalDeals;
+            
+            addExp(expGain);
+            updateChallengeProgress('deals', 1);
+            updateChallengeProgress('earnings', commission);
+            updateChallengeProgress('streak', gameState.stats.currentStreak);
+            
+            showResultModal(isSuccess, commission, expGain, factors, successChance);
             checkAchievements();
         }
-        
-        // --- MODAL & NOTIFICATION FUNCTIONS ---
-        function showResultModal(isSuccess, commission, expGain, successChance) {
-            const title = isSuccess ? 'CHỐT DEAL THÀNH CÔNG!' : 'THƯƠNG VỤ THẤT BẠI!';
-            const icon = isSuccess ? 'fa-check-circle text-green-400' : 'fa-times-circle text-red-400';
-            const message = isSuccess ? `Bạn nhận được ${formatCurrency(commission)} hoa hồng và ${expGain} EXP.` : `Bạn nhận được ${expGain} EXP an ủi.`;
-            if (isSuccess) confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
 
-            el('result-modal').innerHTML = `<div class="modal-content">
-                <i class="fas ${icon} text-8xl mb-6"></i>
-                <h3 class="text-3xl font-bold mb-4">${title}</h3>
-                <p class="text-slate-300 text-lg mb-6">${message}</p>
-                <div class="glass-card p-4 mb-6 text-left text-sm space-y-2">
-                    <div class="flex justify-between items-center font-bold"><span class="text-slate-300">Tỷ lệ thành công</span><span class="text-purple-400">${Math.round(successChance)}%</span></div>
-                </div>
-                <button class="btn btn-primary text-lg px-8 py-4" onclick="closeModal('result-modal')">Tiếp Tục</button>
-            </div>`;
-            el('result-modal').classList.remove('hidden');
+        // === UI FUNCTIONS ===
+        function updateUI() {
+            updatePlayerStats();
+            updateSkillsPanel();
+            updateMainGameArea();
+            updateContextPanel();
+            updateMarketTrends();
+            updateDailyChallenge();
+            
+            if (gameState.currentTab === 'achievements') {
+                updateAchievementsPanel();
+            } else if (gameState.currentTab === 'leaderboard') {
+                updateLeaderboard();
+            }
         }
 
-        function showLevelUpModal(newLevel) {
-            const newRank = GAME_DATA.ranks.slice().reverse().find(r => newLevel >= r.level);
-            sounds.levelup.triggerAttackRelease(["C4", "E4", "G4", "C5"], "1n");
-            confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
-            el('levelup-modal').innerHTML = `<div class="modal-content">
-                <i class="fas fa-arrow-up-right-dots text-8xl text-yellow-400"></i>
-                <h3 class="text-4xl font-extrabold mt-4 text-purple-400">THĂNG CẤP!</h3>
-                <p class="text-slate-300 mt-3 text-lg">Bạn đã đạt đến cấp độ ${newLevel}!</p>
-                <div class="mt-6">
-                    <p class="text-slate-400">Danh hiệu mới của bạn là:</p>
-                    <div class="level-badge text-xl inline-flex mt-2 ${newRank.color}">${newRank.name}</div>
-                </div>
-                <button class="btn btn-primary mt-8" onclick="closeModal('levelup-modal')">Tuyệt vời!</button>
-            </div>`;
-            el('levelup-modal').classList.remove('hidden');
+        function updatePlayerStats() {
+            // Update rank
+            const ranks = [
+                { level: 1, name: 'Tập Sự', icon: 'fa-user-graduate' },
+                { level: 3, name: 'Chuyên Viên', icon: 'fa-user-tie' },
+                { level: 5, name: 'Trưởng Nhóm', icon: 'fa-user-shield' },
+                { level: 8, name: 'Giám Đốc', icon: 'fa-user-crown' },
+                { level: 12, name: 'Siêu Sao', icon: 'fa-star' }
+            ];
+            
+            const currentRank = ranks.slice().reverse().find(r => gameState.player.level >= r.level);
+            document.getElementById('rank-icon').className = `fas ${currentRank.icon} text-3xl text-white`;
+            document.getElementById('player-rank').textContent = currentRank.name;
+            
+            // Update stats
+            const expPercent = (gameState.player.exp / gameState.expToNextLevel) * 100;
+            document.getElementById('exp-bar').style.width = `${expPercent}%`;
+            document.getElementById('exp-text').textContent = `${gameState.player.exp} / ${gameState.expToNextLevel}`;
+            document.getElementById('player-cash').textContent = formatCurrency(gameState.player.cash);
+            document.getElementById('total-deals').textContent = gameState.stats.totalDeals;
+            document.getElementById('success-rate').textContent = `${Math.round(gameState.stats.successRate * 100)}%`;
+            document.getElementById('current-streak').textContent = gameState.stats.currentStreak;
         }
 
+        function updateSkillsPanel() {
+            const container = document.getElementById('skills-container');
+            container.innerHTML = '';
+            
+            Object.entries(gameState.player.skills).forEach(([key, skill]) => {
+                const canAfford = gameState.player.cash >= skill.cost;
+                const skillElement = document.createElement('div');
+                skillElement.className = 'skill-card';
+                skillElement.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <i class="fas ${skill.icon} text-2xl text-blue-500"></i>
+                            <div>
+                                <p class="font-bold text-gray-800">${skill.name}</p>
+                                <p class="text-sm text-gray-500">Cấp ${skill.level}</p>
+                            </div>
+                        </div>
+                        <button class="btn ${canAfford ? 'btn-primary' : 'disabled'}" 
+                                onclick="upgradeSkill('${key}')" 
+                                ${canAfford ? '' : 'disabled'}>
+                            ${formatCurrency(skill.cost)}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(skillElement);
+            });
+        }
+
+        function updateMainGameArea() {
+            const container = document.getElementById('main-game-area');
+            const journey = gameState.journey;
+            
+            if (journey.stage === 'IDLE') {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-center">
+                        <i class="fas fa-search-dollar text-8xl text-gray-300 mb-6"></i>
+                        <h2 class="text-4xl font-bold text-gray-800 mb-4">Sẵn Sàng Chinh Phục?</h2>
+                        <p class="text-gray-600 mb-8 max-w-md">Hãy tìm khách hàng mới và thể hiện kỹ năng môi giới của bạn!</p>
+                        <button class="btn btn-primary text-lg px-8 py-4" onclick="startJourney()">
+                            <i class="fas fa-rocket mr-3"></i>Bắt Đầu Hành Trình
+                        </button>
+                    </div>
+                `;
+            } else if (journey.stage === 'DISCOVERY') {
+                const question = GAME_DATA.questions.find(q => q.id === journey.currentQuestionId);
+                const progress = (Object.keys(journey.persona).length / 5) * 100;
+                
+                container.innerHTML = `
+                    <div class="h-full flex flex-col">
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-bold text-gray-800">Khám Phá Khách Hàng</h3>
+                                <span class="text-sm text-gray-500">${Math.round(progress)}% hoàn thành</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-2xl mb-6">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                                    ${journey.client.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-800">${journey.client.name}</h4>
+                                    <p class="text-sm text-gray-600">${journey.client.personality.name}</p>
+                                </div>
+                                <div class="ml-auto">
+                                    <div class="customer-mood-indicator ${journey.client.mood > 70 ? 'mood-happy' : journey.client.mood > 40 ? 'mood-neutral' : 'mood-unhappy'}">
+                                        <i class="fas ${journey.client.mood > 70 ? 'fa-smile' : journey.client.mood > 40 ? 'fa-meh' : 'fa-frown'}"></i>
+                                        Tâm trạng: ${Math.round(journey.client.mood)}%
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-lg font-medium text-gray-800 italic">"${question.text}"</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3 flex-1 overflow-y-auto">
+                            ${question.answers.map((answer, index) => `
+                                <div class="dialogue-option" onclick="handleDialogueChoice(${index})">
+                                    <p class="font-semibold text-gray-800">${answer.text}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (journey.stage === 'ANALYSIS') {
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-center">
+                        <div class="animate-spin w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full mb-6"></div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Đang Phân Tích Chân Dung Khách Hàng</h3>
+                        <p class="text-gray-600">AI đang xử lý thông tin để tạo profile hoàn hảo...</p>
+                    </div>
+                `;
+            } else if (journey.stage === 'PROPOSAL') {
+                const availableProperties = GAME_DATA.properties.filter(p => p.minLevel <= gameState.player.level);
+                
+                container.innerHTML = `
+                    <div class="h-full flex flex-col">
+                        <div class="mb-6 text-center">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-2">Chọn Sản Phẩm Phù Hợp</h3>
+                            <p class="text-gray-600">Dựa trên phân tích, hãy chọn BĐS phù hợp nhất</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 overflow-y-auto">
+                            ${availableProperties.map(property => `
+                                <div class="property-card ${gameState.journey.selectedPropertyId === property.id ? 'selected' : ''}" 
+                                     onclick="selectProperty(${property.id})">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
+                                            <i class="fas fa-home text-2xl"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-bold text-gray-800">${property.name}</h4>
+                                            <p class="text-sm text-gray-600">${property.location} • ${property.segment}</p>
+                                            <p class="text-lg font-bold text-green-600 mt-2">${formatCurrency(property.price * 1000)}</p>
+                                            <div class="flex flex-wrap gap-1 mt-2">
+                                                ${property.features.map(feature => `
+                                                    <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">${feature}</span>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div class="mt-6 text-center">
+                            <button class="btn btn-success text-lg px-8 py-4 ${gameState.journey.selectedPropertyId ? '' : 'disabled'}" 
+                                    onclick="attemptDeal()" 
+                                    ${gameState.journey.selectedPropertyId ? '' : 'disabled'}>
+                                <i class="fas fa-handshake mr-3"></i>Thực Hiện Giao Dịch
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function updateContextPanel() {
+            const container = document.getElementById('context-panel');
+            const journey = gameState.journey;
+            
+            if (journey.stage === 'DISCOVERY' || journey.stage === 'PROPOSAL') {
+                container.innerHTML = `
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">
+                        <i class="fas fa-user-circle text-blue-500 mr-2"></i>
+                        Thông Tin Khách Hàng
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        ${Object.entries(journey.persona).map(([key, value]) => `
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600 capitalize">${key}:</span>
+                                <span class="text-sm font-semibold text-gray-800">${value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+                        <h4 class="font-bold text-gray-800 mb-2">Personality Traits</h4>
+                        <div class="flex flex-wrap gap-1">
+                            ${journey.client?.personality.traits.map(trait => `
+                                <span class="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full">${trait}</span>
+                            `).join('') || ''}
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">
+                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                        Mẹo & Thủ Thuật
+                    </h3>
+                    
+                    <div class="space-y-3 text-sm text-gray-600">
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-lightbulb text-yellow-500 mt-1"></i>
+                            <p>Nâng cao kỹ năng để tăng tỷ lệ thành công</p>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-chart-line text-green-500 mt-1"></i>
+                            <p>Theo dõi xu hướng thị trường để chọn sản phẩm phù hợp</p>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-clock text-blue-500 mt-1"></i>
+                            <p>Hoàn thành giao dịch nhanh để nhận bonus</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function updateMarketTrends() {
+            const container = document.getElementById('market-trends');
+            container.innerHTML = GAME_DATA.marketTrends.map(trend => `
+                <div class="flex justify-between items-center p-2 rounded-lg bg-gray-50">
+                    <span class="text-sm font-medium">${trend.segment}</span>
+                    <span class="text-sm market-trend-${trend.trend}">
+                        <i class="fas fa-arrow-${trend.trend === 'up' ? 'up' : trend.trend === 'down' ? 'down' : 'right'} mr-1"></i>
+                        ${trend.reason}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        function updateDailyChallenge() {
+            if (!gameState.dailyChallenge) {
+                const randomChallenge = GAME_DATA.dailyChallenges[Math.floor(Math.random() * GAME_DATA.dailyChallenges.length)];
+                gameState.dailyChallenge = {...randomChallenge, progress: 0};
+            }
+            
+            const challenge = gameState.dailyChallenge;
+            const progress = (challenge.progress / challenge.target) * 100;
+            
+            document.getElementById('challenge-text').textContent = challenge.name;
+            document.getElementById('challenge-progress').style.width = `${Math.min(100, progress)}%`;
+            document.getElementById('challenge-progress-text').textContent = `${challenge.progress}/${challenge.target}`;
+        }
+
+        function updateChallengeProgress(type, amount) {
+            if (!gameState.dailyChallenge || gameState.dailyChallenge.type !== type) return;
+            
+            gameState.dailyChallenge.progress += amount;
+            
+            if (gameState.dailyChallenge.progress >= gameState.dailyChallenge.target) {
+                gameState.player.cash += gameState.dailyChallenge.reward;
+                showNotification(`Thử thách hoàn thành! +${formatCurrency(gameState.dailyChallenge.reward)}`, 'success');
+                gameState.dailyChallenge = null; // Reset for next challenge
+            }
+            
+            updateDailyChallenge();
+        }
+
+        // === MODAL FUNCTIONS ===
+        function showResultModal(isSuccess, commission, expGain, factors, successChance) {
+            const modal = document.getElementById('result-modal');
+            const title = isSuccess ? 'GIAO DỊCH THÀNH CÔNG!' : 'GIAO DỊCH THẤT BẠI';
+            const icon = isSuccess ? 'fa-check-circle text-green-500' : 'fa-times-circle text-red-500';
+            const message = isSuccess ? 
+                `Chúc mừng! Bạn đã kiếm được ${formatCurrency(commission)} và ${expGain} EXP.` :
+                `Rất tiếc! Bạn chỉ nhận được ${expGain} EXP an ủi.`;
+            
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <i class="fas ${icon} text-8xl mb-6"></i>
+                    <h3 class="text-3xl font-bold mb-4">${title}</h3>
+                    <p class="text-gray-600 text-lg mb-6">${message}</p>
+                    
+                    <div class="bg-gray-50 p-6 rounded-2xl mb-6 text-left">
+                        <h4 class="font-bold text-gray-800 mb-4">Chi Tiết Phân Tích</h4>
+                        <div class="space-y-2">
+                            ${Object.entries(factors).map(([key, factor]) => `
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-700">${key}</span>
+                                    <span class="font-bold ${factor.value > 0 ? 'text-green-600' : 'text-red-600'}">
+                                        ${factor.value > 0 ? '+' : ''}${Math.round(factor.value)}%
+                                    </span>
+                                </div>
+                            `).join('')}
+                            <hr class="my-2">
+                            <div class="flex justify-between items-center font-bold">
+                                <span>Tỷ lệ thành công</span>
+                                <span class="text-blue-600">${Math.round(successChance)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary text-lg px-8 py-4" onclick="closeModal('result-modal')">
+                        Tiếp Tục
+                    </button>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        function showLevelUpModal() {
+            const modal = document.getElementById('levelup-modal');
+            playSound('levelup');
+            confetti({
+                particleCount: 200,
+                spread: 90,
+                origin: { y: 0.6 }
+            });
+            
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <i class="fas fa-star text-8xl text-yellow-400 mb-6"></i>
+                    <h3 class="text-4xl font-bold text-purple-700 mb-4">THĂNG CẤP!</h3>
+                    <p class="text-gray-600 text-lg mb-6">Bạn đã đạt cấp độ ${gameState.player.level}!</p>
+                    <p class="text-gray-500 mb-8">Giờ bạn có thể truy cập nhiều sản phẩm cao cấp hơn.</p>
+                    <button class="btn btn-primary text-lg px-8 py-4" onclick="closeModal('levelup-modal')">
+                        Tuyệt vời!
+                    </button>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            
+            if (modalId === 'result-modal') {
+                gameState.journey.stage = 'IDLE';
+                updateUI();
+            }
+        }
+
+        // === ACHIEVEMENTS ===
         function checkAchievements() {
             GAME_DATA.achievements.forEach(achievement => {
-                if (!gameState.achievements[achievement.id] && achievement.condition(gameState.stats, gameState.player)) {
+                if (!gameState.achievements[achievement.id] && achievement.condition()) {
                     gameState.achievements[achievement.id] = true;
-                    showNotification(`Thành tựu mới: ${achievement.name}!`);
+                    showAchievementModal(achievement);
+                    playSound('success');
                 }
             });
         }
 
-        function closeModal(modalId) {
-            el(modalId).classList.add('hidden');
-            if (modalId === 'result-modal') {
-                gameState.journey.stage = 'IDLE';
-                updateAllUI();
+        function showAchievementModal(achievement) {
+            const modal = document.getElementById('achievement-modal');
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <i class="fas ${achievement.icon} text-8xl text-yellow-400 mb-6"></i>
+                    <h3 class="text-3xl font-bold text-purple-700 mb-4">THÀNH TỰU MỚI!</h3>
+                    <h4 class="text-xl font-bold text-gray-800 mb-2">${achievement.name}</h4>
+                    <p class="text-gray-600 mb-8">${achievement.description}</p>
+                    <button class="btn btn-primary text-lg px-8 py-4" onclick="closeModal('achievement-modal')">
+                        Tuyệt vời!
+                    </button>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+            
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#fbbf24', '#f59e0b', '#d97706']
+            });
+        }
+
+        function updateAchievementsPanel() {
+            const container = document.getElementById('achievements-grid');
+            container.innerHTML = GAME_DATA.achievements.map(achievement => {
+                const isUnlocked = gameState.achievements[achievement.id];
+                return `
+                    <div class="achievement-badge ${isUnlocked ? 'achievement-unlocked' : 'achievement-locked'}">
+                        <i class="fas ${achievement.icon}"></i>
+                        <div class="text-left">
+                            <p class="font-bold">${achievement.name}</p>
+                            <p class="text-xs opacity-90">${achievement.description}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // === LEADERBOARD ===
+        function updateLeaderboard() {
+            // Simulate leaderboard data (in a real game, this would come from a server)
+            const leaderboard = [
+                { name: 'Bạn', level: gameState.player.level, deals: gameState.stats.totalDeals, earnings: gameState.stats.totalEarnings },
+                { name: 'Nguyễn Văn A', level: 15, deals: 150, earnings: 2500000 },
+                { name: 'Trần Thị B', level: 12, deals: 120, earnings: 1800000 },
+                { name: 'Lê Văn C', level: 10, deals: 95, earnings: 1200000 },
+                { name: 'Phạm Thị D', level: 8, deals: 75, earnings: 950000 },
+            ].sort((a, b) => b.earnings - a.earnings);
+            
+            const container = document.getElementById('leaderboard-list');
+            container.innerHTML = leaderboard.map((player, index) => `
+                <div class="leaderboard-entry ${player.name === 'Bạn' ? 'border-blue-500 bg-blue-50' : ''}">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-8 h-8 rounded-full ${index < 3 ? ['bg-yellow-400', 'bg-gray-400', 'bg-yellow-600'][index] : 'bg-gray-200'} flex items-center justify-center text-white font-bold">
+                                ${index + 1}
+                            </div>
+                            <div>
+                                <p class="font-bold">${player.name}</p>
+                                <p class="text-sm text-gray-600">Cấp ${player.level} • ${player.deals} deals</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-green-600">${formatCurrency(player.earnings)}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // === TAB SYSTEM ===
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+            
+            gameState.currentTab = tabName;
+            
+            // Update specific content
+            if (tabName === 'achievements') {
+                updateAchievementsPanel();
+            } else if (tabName === 'leaderboard') {
+                updateLeaderboard();
             }
         }
 
-        function switchTab(tabName) {
-            sounds.click.triggerAttackRelease("C4", "8n");
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
-            el(`${tabName}-tab`).classList.remove('hidden');
-            if(tabName === 'achievements') updateAchievementsPanel();
-            if(tabName === 'guide') updateGuidePanel();
+        // === MINI GAMES ===
+        function startMiniGame(gameType) {
+            const modal = document.getElementById('minigame-modal');
+            
+            switch(gameType) {
+                case 'negotiation':
+                    showNegotiationGame(modal);
+                    break;
+                case 'market-prediction':
+                    showMarketPredictionGame(modal);
+                    break;
+                case 'speed-matching':
+                    showSpeedMatchingGame(modal);
+                    break;
+                case 'daily-challenge':
+                    showDailyChallengeGame(modal);
+                    break;
+            }
+            
+            modal.classList.remove('hidden');
         }
 
-        function updateAllUI() {
-            updatePlayerProfilePanel();
-            updateSkillsPanel();
-            updateMainGameArea();
-            updateContextPanel();
-            saveGame();
+        function showNegotiationGame(modal) {
+            const scenarios = [
+                { situation: 'Khách hàng muốn giảm giá 20%', options: ['Từ chối thẳng', 'Đề xuất 10%', 'Giải thích giá trị'], correct: 2 },
+                { situation: 'Khách hàng phàn nàn về vị trí', options: ['Đồng tình', 'Chỉ ra ưu điểm', 'Đổi sản phẩm khác'], correct: 1 },
+                { situation: 'Khách hàng do dự về quyết định', options: ['Gây áp lực', 'Tạo khan hiếm', 'Chia sẻ case study'], correct: 2 }
+            ];
+            
+            const currentScenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+            
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <i class="fas fa-handshake text-6xl text-blue-500 mb-6"></i>
+                    <h3 class="text-2xl font-bold mb-6">Mini Game: Đàm Phán</h3>
+                    
+                    <div class="bg-gray-100 p-6 rounded-xl mb-6">
+                        <h4 class="font-bold mb-3">Tình huống:</h4>
+                        <p class="text-gray-700">${currentScenario.situation}</p>
+                    </div>
+                    
+                    <div class="space-y-3 mb-6">
+                        ${currentScenario.options.map((option, index) => `
+                            <button class="w-full p-4 text-left border-2 border-gray-200 rounded-xl hover:border-blue-500 transition-colors" 
+                                    onclick="handleNegotiationChoice(${index}, ${currentScenario.correct})">
+                                ${String.fromCharCode(65 + index)}. ${option}
+                            </button>
+                        `).join('')}
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="closeModal('minigame-modal')">
+                        Thoát
+                    </button>
+                </div>
+            `;
         }
 
-        // --- INITIALIZATION ---
+        function handleNegotiationChoice(choice, correct) {
+            const isCorrect = choice === correct;
+            const reward = isCorrect ? 50 : 10;
+            
+            gameState.player.cash += reward;
+            addExp(isCorrect ? 30 : 10);
+            
+            showNotification(
+                isCorrect ? `Chính xác! +${formatCurrency(reward)}` : `Sai rồi! +${formatCurrency(reward)}`,
+                isCorrect ? 'success' : 'failure'
+            );
+            
+            closeModal('minigame-modal');
+        }
+
+        // === INITIALIZATION ===
         function initGame() {
-            particlesJS('particles-js', { particles: { number: { value: 50 }, color: { value: '#ffffff' }, shape: { type: 'circle' }, opacity: { value: 0.1, random: true }, size: { value: 3, random: true }, line_linked: { enable: false }, move: { enable: true, speed: 1, direction: 'none', random: true, straight: false, out_mode: 'out' } }, interactivity: { detect_on: 'canvas', events: { onhover: { enable: false }, onclick: { enable: false } } } });
-            initGameState();
-            updateAllUI();
+            particlesJS('particles-js', {
+                particles: {
+                    number: { value: 50, density: { enable: true, value_area: 800 } },
+                    color: { value: '#ffffff' },
+                    opacity: { value: 0.1, random: false },
+                    size: { value: 3, random: true },
+                    move: { enable: true, speed: 1, direction: 'none', out_mode: 'out' }
+                },
+                interactivity: {
+                    detect_on: 'canvas',
+                    events: { onhover: { enable: false }, onclick: { enable: false } }
+                }
+            });
+            
+            // Check for seasonal events
+            const today = new Date();
+            GAME_DATA.seasonalEvents.forEach(event => {
+                // Simple seasonal logic (can be expanded)
+                if (event.id === 'tet_bonus' && (today.getMonth() === 0 || today.getMonth() === 1)) {
+                    event.active = true;
+                    document.getElementById('seasonal-event').classList.remove('hidden');
+                    document.getElementById('seasonal-text').textContent = `🎊 ${event.name} - Hoa hồng x${event.bonus}!`;
+                }
+            });
+            
+            updateUI();
+            
+            // Auto-save game state every 30 seconds
+            setInterval(() => {
+                localStorage.setItem('brokerGameState', JSON.stringify(gameState));
+            }, 30000);
+            
+            // Load saved game state
+            const savedState = localStorage.getItem('brokerGameState');
+            if (savedState) {
+                try {
+                    gameState = {...gameState, ...JSON.parse(savedState)};
+                    updateUI();
+                } catch (e) {
+                    console.log('Could not load saved game state');
+                }
+            }
         }
 
+        // Start the game when page loads
         document.addEventListener('DOMContentLoaded', initGame);
     </script>
 </body>
