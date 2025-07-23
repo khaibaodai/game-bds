@@ -98,10 +98,18 @@
             padding: 1rem;
             cursor: pointer;
             transition: all 0.2s ease;
+            text-align: left;
         }
         .dialogue-option:hover {
             background-color: #f8fafc;
             border-color: #3b82f6;
+        }
+        .spin-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -166,55 +174,96 @@
         // --- DATA SETUP ---
         const GAME_DATA = {
             properties: [
-                // Phân khúc < 2 tỷ
                 { id: 1, name: 'NOXH An Phú', location: 'Khu Tây', price: 1800, type: 'Căn hộ', segment: 'Nhà ở xã hội', minLevel: 1 },
-                // Phân khúc 2-4 tỷ
                 { id: 2, name: 'Căn hộ The Standard', location: 'Tỉnh lân cận', price: 2500, type: 'Căn hộ', segment: 'Bình dân', minLevel: 1 },
                 { id: 3, name: 'Nhà phố Eco Garden', location: 'Khu Tây', price: 3800, type: 'Nhà phố', segment: 'Bình dân', minLevel: 2 },
-                // Phân khúc 4-7 tỷ
                 { id: 4, name: 'Căn hộ Saigon Riverside', location: 'Khu Đông', price: 4500, type: 'Căn hộ', segment: 'Trung cấp', minLevel: 2 },
                 { id: 5, name: 'Shophouse Lakeview', location: 'Khu Nam', price: 6500, type: 'Shophouse', segment: 'Trung cấp', minLevel: 3 },
-                // Phân khúc 7-15 tỷ
                 { id: 6, name: 'Biệt thự The Oasis', location: 'Khu Đông', price: 9000, type: 'Biệt thự', segment: 'Cao cấp', minLevel: 4 },
                 { id: 7, name: 'Căn hộ The Metropole', location: 'Trung tâm', price: 12000, type: 'Căn hộ', segment: 'Cao cấp', minLevel: 5 },
-                // Phân khúc > 15 tỷ
                 { id: 8, name: 'Penthouse The Marq', location: 'Trung tâm', price: 25000, type: 'Penthouse', segment: 'Hạng sang', minLevel: 6 },
                 { id: 9, name: 'Biệt thự Grand Marina', location: 'Trung tâm', price: 40000, type: 'Biệt thự', segment: 'Hàng hiệu', minLevel: 7 },
             ],
             clientData: {
                 names: ['Anh Khoa', 'Chị Mai', 'Cô Bảy', 'Chú Nam', 'Bạn Hùng', 'Chị Trúc'],
-                needs: ['Để ở', 'Đầu tư cho thuê', 'Đầu tư lướt sóng', 'Giữ tài sản'],
-                financials: ['100% vốn tự có', 'Vay ngân hàng 30%', 'Vay ngân hàng 50%', 'Vay ngân hàng 70%'],
-                incomes: [30, 50, 80, 120, 200], // in millions VND
-                initialInterests: ['Căn hộ', 'Nhà phố', 'Biệt thự', 'Shophouse'],
+                needs: ['Để ở', 'Đầu tư'],
+                financials: ['100% vốn tự có', 'Vay ngân hàng 50%'],
+                incomes: [30, 50, 80, 120, 200],
             },
+            // NEW SPIN-based Dialogue System
             dialogue: {
-                questions: [
-                    {
-                        prompt: "Chào anh/chị, em gọi từ phòng kinh doanh dự án. Không biết mình đang quan tâm sản phẩm BĐS với mục đích gì ạ?",
-                        key: "need",
-                        options: ["Để ở", "Để đầu tư", "Chỉ xem thử thôi"]
+                'Để ở': {
+                    S: {
+                        prompt: "Chào anh/chị, em gọi để hỗ trợ mình tìm một mái ấm. Hiện tại gia đình mình đang sinh sống ở khu vực nào ạ?",
+                        options: [
+                            { text: "Hỏi về số thành viên và công việc để hiểu rõ hơn về nhu cầu di chuyển.", rapport: 10 },
+                            { text: "Giới thiệu ngay một dự án đang hot.", rapport: -5 },
+                            { text: "Hỏi về ngân sách dự kiến của anh/chị.", rapport: 5 },
+                        ]
                     },
-                    {
-                        prompt: "Dạ tuyệt vời ạ. Về tài chính, không biết mình dự định dùng hoàn toàn vốn tự có hay có hỗ trợ từ ngân hàng ạ?",
-                        key: "financial",
-                        options: ["Anh/chị tự chủ tài chính", "Chắc sẽ vay một ít"]
+                    P: {
+                        prompt: "Với nơi ở hiện tại, anh/chị có cảm thấy có điều gì bất tiện không ạ, ví dụ như không gian hơi chật chội hay thiếu tiện ích cho gia đình?",
+                        options: [
+                            { text: "Lắng nghe và gợi mở thêm về vấn đề an ninh hoặc môi trường sống.", rapport: 15 },
+                            { text: "Kể về các tiện ích của dự án bên em.", rapport: 0 },
+                            { text: "Nói rằng ai cũng có vấn đề như vậy.", rapport: -10 },
+                        ]
                     },
-                    {
-                        prompt: "Để tư vấn gói vay phù hợp, anh/chị có thể chia sẻ mức thu nhập hàng tháng của mình được không ạ?",
-                        key: "income",
-                        options: ["Khoảng 30-50 triệu", "Khoảng 50-100 triệu", "Trên 100 triệu"]
+                    I: {
+                        prompt: "Việc không gian sống không đủ tiện nghi hoặc an ninh không đảm bảo có thể ảnh hưởng đến chất lượng cuộc sống và sự phát triển của bọn trẻ về lâu dài. Anh/chị có nghĩ vậy không?",
+                        options: [
+                            { text: "Đồng cảm và nhấn mạnh về tầm quan trọng của một môi trường sống lý tưởng.", rapport: 15 },
+                            { text: "So sánh trực tiếp với dự án của mình.", rapport: 5 },
+                            { text: "Hỏi khi nào anh/chị quyết định đổi nhà.", rapport: -5 },
+                        ]
                     },
-                ]
+                    N: {
+                        prompt: "Nếu có một giải pháp nhà ở vừa rộng rãi, an ninh 24/7, lại gần trường học quốc tế, điều đó sẽ giúp anh/chị an tâm và nâng cao chất lượng sống của cả gia đình như thế nào ạ?",
+                        options: [
+                            { text: "Dẫn dắt khách hàng tự nói ra lợi ích, sau đó mời họ tham quan nhà mẫu để trải nghiệm thực tế.", rapport: 20 },
+                            { text: "Liệt kê tất cả các lợi ích của dự án.", rapport: 10 },
+                        ]
+                    }
+                },
+                'Đầu tư': {
+                    S: {
+                        prompt: "Chào anh/chị, em biết mình là một nhà đầu tư có kinh nghiệm. Không biết khẩu vị đầu tư của mình hiện tại đang tập trung vào khu vực nào và phân khúc tài chính ra sao ạ?",
+                        options: [
+                            { text: "Hỏi thêm về các kênh đầu tư khác và tỷ suất lợi nhuận kỳ vọng.", rapport: 15 },
+                            { text: "Giới thiệu ngay dự án có tỷ suất lợi nhuận cao nhất.", rapport: 0 },
+                            { text: "Hỏi anh/chị có bao nhiêu tiền để đầu tư.", rapport: -10 },
+                        ]
+                    },
+                    P: {
+                        prompt: "Khi tìm kiếm các cơ hội đầu tư BĐS, điều gì khiến anh/chị lo ngại nhất ạ? Có phải là vấn đề về pháp lý, uy tín chủ đầu tư hay tính thanh khoản không ạ?",
+                        options: [
+                            { text: "Lắng nghe và xác nhận lại mối lo ngại chính của họ.", rapport: 15 },
+                            { text: "Cam kết dự án của em không có vấn đề gì.", rapport: 5 },
+                            { text: "Hỏi sao anh/chị lại lo xa vậy.", rapport: -15 },
+                        ]
+                    },
+                    I: {
+                        prompt: "Với tình hình lạm phát và các kênh đầu tư khác đang biến động, việc bỏ lỡ một cơ hội đầu tư BĐS đúng thời điểm ở một khu vực tiềm năng như Thủ Thiêm có thể ảnh hưởng đến hiệu quả sử dụng vốn của mình như thế nào ạ?",
+                         options: [
+                            { text: "Phân tích về chi phí cơ hội và tiềm năng tăng giá trong tương lai dựa trên quy hoạch hạ tầng.", rapport: 15 },
+                            { text: "Nói rằng nếu không mua bây giờ thì sẽ không còn hàng.", rapport: 5 },
+                        ]
+                    },
+                    N: {
+                        prompt: "Nếu bên em có một sản phẩm đảm bảo cả về pháp lý, tiềm năng tăng giá 30-40% trong 3 năm tới và tính thanh khoản cao do vị trí độc tôn, điều đó có phù hợp với mục tiêu đầu tư của anh/chị không?",
+                        options: [
+                            { text: "Cung cấp số liệu cụ thể và mời khách hàng một buổi trao đổi chuyên sâu với chuyên gia.", rapport: 20 },
+                            { text: "Gửi cho khách hàng bảng giá và chính sách bán hàng.", rapport: 10 },
+                        ]
+                    }
+                }
             }
         };
 
         // --- GAME STATE ---
         let gameState = {
             player: {
-                level: 1,
-                exp: 0,
-                cash: 500,
+                level: 1, exp: 0, cash: 500,
                 skills: {
                     giaoTiep: { name: 'Giao Tiếp', level: 1, cost: 100, icon: 'fa-comments' },
                     damPhan: { name: 'Đàm Phán', level: 1, cost: 150, icon: 'fa-handshake' },
@@ -225,29 +274,21 @@
             journey: {
                 stage: 'IDLE', // IDLE, DIALOGUE, PROPOSAL, RESULT
                 client: null,
-                dialogueStep: 0,
-                rapport: 0, // Thiện cảm
+                spinStage: 'S', // S, P, I, N
+                rapport: 0,
                 selectedPropertyId: null,
             },
             expToNextLevel: 100,
         };
 
-        // --- SOUNDS ---
+        // --- SOUNDS & UI ELEMENTS (unchanged) ---
         const synth = new Tone.Synth().toDestination();
         const successSound = () => synth.triggerAttackRelease("C5", "8n", Tone.now());
         const failureSound = () => synth.triggerAttackRelease("C3", "8n", Tone.now());
         const upgradeSound = () => new Tone.PolySynth().toDestination().triggerAttackRelease(["C4", "E4", "G4"], "8n");
         const levelUpSound = () => new Tone.PolySynth().toDestination().triggerAttackRelease(["C4", "E4", "G4", "C5"], "4n");
+        const playerLevelEl = document.getElementById('player-level'), playerExpBarEl = document.getElementById('player-exp-bar'), playerExpTextEl = document.getElementById('player-exp-text'), playerCashEl = document.getElementById('player-cash'), skillsContainerEl = document.getElementById('skills-container'), mainPanelEl = document.getElementById('main-panel'), propertiesListEl = document.getElementById('properties-list'), resultModalEl = document.getElementById('result-modal');
 
-        // --- UI ELEMENTS ---
-        const playerLevelEl = document.getElementById('player-level');
-        const playerExpBarEl = document.getElementById('player-exp-bar');
-        const playerExpTextEl = document.getElementById('player-exp-text');
-        const playerCashEl = document.getElementById('player-cash');
-        const skillsContainerEl = document.getElementById('skills-container');
-        const mainPanelEl = document.getElementById('main-panel');
-        const propertiesListEl = document.getElementById('properties-list');
-        const resultModalEl = document.getElementById('result-modal');
 
         // --- RENDER FUNCTIONS ---
         function formatCurrency(value) {
@@ -269,13 +310,8 @@
                 const canAfford = gameState.player.cash >= skill.cost;
                 skillsContainerEl.innerHTML += `
                     <div class="flex items-center justify-between">
-                        <div>
-                            <p class="font-semibold text-slate-700 flex items-center"><i class="fas ${skill.icon} mr-2 text-slate-500 w-4"></i>${skill.name}</p>
-                            <p class="text-sm text-slate-500">Cấp ${skill.level}</p>
-                        </div>
-                        <button class="btn bg-slate-200 text-slate-700 hover:bg-slate-300 text-xs px-3 py-2 ${canAfford ? '' : 'disabled'}" onclick="upgradeSkill('${key}')" ${canAfford ? '' : 'disabled'}>
-                            + ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(skill.cost)}
-                        </button>
+                        <div><p class="font-semibold text-slate-700 flex items-center"><i class="fas ${skill.icon} mr-2 text-slate-500 w-4"></i>${skill.name}</p><p class="text-sm text-slate-500">Cấp ${skill.level}</p></div>
+                        <button class="btn bg-slate-200 text-slate-700 hover:bg-slate-300 text-xs px-3 py-2 ${canAfford ? '' : 'disabled'}" onclick="upgradeSkill('${key}')" ${canAfford ? '' : 'disabled'}>+ ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(skill.cost)}</button>
                     </div>`;
             }
         }
@@ -286,75 +322,65 @@
                 const isLocked = prop.minLevel > gameState.player.level;
                 const isSelected = gameState.journey.selectedPropertyId === prop.id;
                 const canSelect = gameState.journey.stage === 'PROPOSAL' && !isLocked;
-
                 propertiesListEl.innerHTML += `
-                    <div class="card p-3 border-2 ${isSelected ? 'border-blue-500' : 'border-transparent'} ${isLocked ? 'opacity-50' : (canSelect ? 'cursor-pointer' : '')}" 
-                         onclick="${canSelect ? `selectProperty(${prop.id})` : ''}">
+                    <div class="card p-3 border-2 ${isSelected ? 'border-blue-500' : 'border-transparent'} ${isLocked ? 'opacity-50' : (canSelect ? 'cursor-pointer' : '')}" onclick="${canSelect ? `selectProperty(${prop.id})` : ''}">
                         <div class="flex items-start">
                             <i class="fas fa-building text-xl mr-4 text-teal-600 w-6 text-center pt-1"></i>
-                            <div>
-                                <p class="font-semibold text-slate-800">${prop.name}</p>
-                                <p class="text-sm text-slate-500">${prop.location} - ${prop.segment}</p>
-                                <p class="text-sm text-green-600 font-medium">${formatCurrency(prop.price)}</p>
-                                ${isLocked ? `<p class="text-xs text-red-500 font-semibold">Yêu cầu Cấp ${prop.minLevel}</p>` : ''}
-                            </div>
+                            <div><p class="font-semibold text-slate-800">${prop.name}</p><p class="text-sm text-slate-500">${prop.location} - ${prop.segment}</p><p class="text-sm text-green-600 font-medium">${formatCurrency(prop.price)}</p>${isLocked ? `<p class="text-xs text-red-500 font-semibold">Yêu cầu Cấp ${prop.minLevel}</p>` : ''}</div>
                         </div>
                     </div>`;
             });
         }
 
         function updateMainPanelUI() {
-            const stage = gameState.journey.stage;
-            if (stage === 'IDLE') {
+            const journey = gameState.journey;
+            if (journey.stage === 'IDLE') {
                 mainPanelEl.innerHTML = `
                     <div class="flex flex-col items-center justify-center h-full text-center">
                         <i class="fas fa-search-dollar text-6xl text-slate-300 mb-4"></i>
                         <h2 class="text-2xl font-bold text-slate-700">Sẵn sàng chinh phục khách hàng?</h2>
                         <p class="text-slate-500 mt-2 mb-6 max-w-sm">Sử dụng kỹ năng Marketing để tìm kiếm khách hàng tiềm năng và bắt đầu hành trình của bạn.</p>
-                        <button class="btn btn-primary" onclick="startJourney()">
-                            <i class="fas fa-search mr-2"></i>Tìm Khách Hàng Mới
-                        </button>
+                        <button class="btn btn-primary" onclick="startJourney()"><i class="fas fa-search mr-2"></i>Tìm Khách Hàng Mới</button>
                     </div>`;
-            } else if (stage === 'DIALOGUE') {
-                const q = GAME_DATA.dialogue.questions[gameState.journey.dialogueStep];
+            } else if (journey.stage === 'DIALOGUE') {
+                const dialogueData = GAME_DATA.dialogue[journey.client.need][journey.spinStage];
+                const spinInfo = {
+                    S: { name: 'Tình huống', color: 'bg-blue-100 text-blue-800' },
+                    P: { name: 'Vấn đề', color: 'bg-amber-100 text-amber-800' },
+                    I: { name: 'Ảnh hưởng', color: 'bg-red-100 text-red-800' },
+                    N: { name: 'Nhu cầu-Lợi ích', color: 'bg-green-100 text-green-800' },
+                };
                 mainPanelEl.innerHTML = `
                     <div class="flex flex-col h-full">
                         <div class="text-center mb-6">
-                            <p class="text-sm text-slate-500">Hành trình khách hàng: Bước 2/7</p>
+                            <p class="text-sm text-slate-500">Hành trình khách hàng: <span class="spin-tag ${spinInfo[journey.spinStage].color}">${journey.spinStage} - ${spinInfo[journey.spinStage].name}</span></p>
                             <h2 class="text-2xl font-bold text-slate-800">Tiếp Cận & Phân Tích</h2>
                         </div>
-                        <div class="bg-blue-50 p-4 rounded-lg mb-6">
-                            <p class="font-semibold text-blue-800">Khách hàng nói:</p>
-                            <p class="text-lg text-slate-700 italic">"${q.prompt}"</p>
+                        <div class="bg-slate-50 p-4 rounded-lg mb-6">
+                            <p class="font-semibold text-slate-800">Khách hàng nói:</p>
+                            <p class="text-lg text-slate-700 italic">"${dialogueData.prompt}"</p>
                         </div>
-                        <div class="space-y-3">
-                            ${q.options.map((opt, index) => `
-                                <div class="dialogue-option" onclick="handleDialogueChoice(${index})">
-                                    <p>${opt}</p>
-                                </div>
+                        <div class="space-y-3 flex-grow overflow-y-auto pr-2">
+                            ${dialogueData.options.map((opt, index) => `
+                                <div class="dialogue-option" onclick="handleDialogueChoice(${index})"><p>${opt.text}</p></div>
                             `).join('')}
                         </div>
                     </div>`;
-            } else if (stage === 'PROPOSAL') {
-                const client = gameState.journey.client;
+            } else if (journey.stage === 'PROPOSAL') {
+                const client = journey.client;
                 mainPanelEl.innerHTML = `
                     <div class="flex flex-col h-full">
-                        <div class="text-center mb-6">
-                            <p class="text-sm text-slate-500">Hành trình khách hàng: Bước 3/7</p>
-                            <h2 class="text-2xl font-bold text-slate-800">Tư Vấn Sản Phẩm</h2>
-                        </div>
+                        <div class="text-center mb-6"><p class="text-sm text-slate-500">Hành trình khách hàng: Bước 3/7</p><h2 class="text-2xl font-bold text-slate-800">Tư Vấn Sản Phẩm</h2></div>
                         <div class="card bg-slate-50 p-4 space-y-2 flex-grow">
                             <h3 class="text-lg font-bold text-slate-700">Hồ Sơ Khách Hàng: ${client.name}</h3>
-                            <p><strong>Nhu cầu:</strong> <span class="font-semibold text-blue-600">${client.need}</span></p>
+                            <p><strong>Nhu cầu chính:</strong> <span class="font-semibold text-blue-600">${client.need}</span></p>
                             <p><strong>Tài chính:</strong> <span class="font-semibold text-blue-600">${client.financial}</span></p>
                             <p><strong>Thu nhập:</strong> <span class="font-semibold text-blue-600">~${client.income} triệu/tháng</span></p>
-                            <p><strong>Cảm tính:</strong> <span class="font-semibold text-purple-600">???</span> (Yếu tố ẩn)</p>
+                            <p><strong>Thiện cảm:</strong> <span class="font-semibold text-green-600">${journey.rapport}/100</span></p>
                         </div>
                         <div class="mt-6 text-center">
                             <p class="text-slate-600 mb-4">Dựa vào thông tin trên, hãy chọn sản phẩm phù hợp nhất từ giỏ hàng bên phải.</p>
-                            <button id="attempt-deal-btn" class="btn btn-success disabled" onclick="attemptDeal()" disabled>
-                                <i class="fas fa-file-signature mr-2"></i>Chốt Deal
-                            </button>
+                            <button id="attempt-deal-btn" class="btn btn-success disabled" onclick="attemptDeal()" disabled><i class="fas fa-file-signature mr-2"></i>Chốt Deal</button>
                         </div>
                     </div>`;
             }
@@ -386,43 +412,41 @@
                 gameState.player.level++;
                 gameState.expToNextLevel = Math.round(gameState.expToNextLevel * 1.6);
                 levelUpSound();
-                // Add highlight effect later if needed
             }
         }
 
         function startJourney() {
-            // Generate Client
-            const { names, needs, financials, incomes, initialInterests } = GAME_DATA.clientData;
+            const { names, needs, financials, incomes } = GAME_DATA.clientData;
             gameState.journey.client = {
                 name: names[Math.floor(Math.random() * names.length)],
                 need: needs[Math.floor(Math.random() * needs.length)],
                 financial: financials[Math.floor(Math.random() * financials.length)],
                 income: incomes[Math.floor(Math.random() * incomes.length)],
-                initialInterest: initialInterests[Math.floor(Math.random() * initialInterests.length)],
-                // Yếu tố cảm tính ngẫu nhiên, từ -20 (rất khó) đến +20 (rất dễ)
                 emotionalFactor: Math.floor(Math.random() * 41) - 20 
             };
             
-            // Reset journey state
             gameState.journey.stage = 'DIALOGUE';
-            gameState.journey.dialogueStep = 0;
-            gameState.journey.rapport = 0;
+            gameState.journey.spinStage = 'S';
+            gameState.journey.rapport = 20; // Start with some base rapport
             gameState.journey.selectedPropertyId = null;
             
             updateAllUI();
         }
 
         function handleDialogueChoice(choiceIndex) {
-            // Simple logic for now: correct choice gives rapport
-            // In a real game, this would be more complex
-            if (choiceIndex < 2) { // Assume first 2 options are good
-                gameState.journey.rapport += 10;
-            }
-            
-            gameState.journey.dialogueStep++;
-            
-            if (gameState.journey.dialogueStep >= GAME_DATA.dialogue.questions.length) {
-                gameState.journey.stage = 'PROPOSAL';
+            const journey = gameState.journey;
+            const dialogueData = GAME_DATA.dialogue[journey.client.need][journey.spinStage];
+            const choice = dialogueData.options[choiceIndex];
+
+            journey.rapport += choice.rapport;
+
+            const stageOrder = ['S', 'P', 'I', 'N'];
+            const currentStageIndex = stageOrder.indexOf(journey.spinStage);
+
+            if (currentStageIndex < stageOrder.length - 1) {
+                journey.spinStage = stageOrder[currentStageIndex + 1];
+            } else {
+                journey.stage = 'PROPOSAL';
             }
             updateAllUI();
         }
@@ -430,55 +454,46 @@
         function selectProperty(propId) {
             if (gameState.journey.stage !== 'PROPOSAL') return;
             gameState.journey.selectedPropertyId = propId;
-            updatePropertiesUI(); // To show selection
+            updatePropertiesUI();
             
             const dealBtn = document.getElementById('attempt-deal-btn');
-            if (dealBtn) {
-                dealBtn.classList.remove('disabled');
-                dealBtn.disabled = false;
-            }
+            if (dealBtn) { dealBtn.classList.remove('disabled'); dealBtn.disabled = false; }
         }
         
         function attemptDeal() {
             const client = gameState.journey.client;
             const prop = GAME_DATA.properties.find(p => p.id === gameState.journey.selectedPropertyId);
             const skills = gameState.player.skills;
-
             let details = {};
             
-            // 1. Matching Score (Max 50)
             let matchingScore = 0;
-            const priceAffordable = client.income * 50 > prop.price; // Simple affordability check
+            const priceAffordable = client.income * 70 > prop.price; // Stricter check
             if (priceAffordable) {
-                matchingScore += 25;
-                details['Tài chính'] = { text: 'Phù hợp', value: '+25%', success: true };
+                matchingScore += 20;
+                details['Tài chính'] = { text: 'Phù hợp', value: '+20%', success: true };
             } else {
-                matchingScore -= 10;
-                details['Tài chính'] = { text: 'Vượt ngân sách', value: '-10%', success: false };
+                matchingScore -= 15;
+                details['Tài chính'] = { text: 'Vượt ngân sách', value: '-15%', success: false };
             }
             
-            const segmentMatch = client.initialInterest === prop.type;
-            if (segmentMatch) {
-                matchingScore += 25;
-                details['Loại hình'] = { text: 'Đúng nhu cầu', value: '+25%', success: true };
+            const segmentMatchBonus = (client.need === 'Để ở' && prop.type !== 'Shophouse') || (client.need === 'Đầu tư');
+            if (segmentMatchBonus) {
+                matchingScore += 20;
+                details['Loại hình'] = { text: 'Đúng nhu cầu', value: '+20%', success: true };
             } else {
-                details['Loại hình'] = { text: 'Chưa đúng nhu cầu', value: '+0%', success: true };
+                details['Loại hình'] = { text: 'Chưa tối ưu', value: '+0%', success: true };
             }
             details['Điểm phù hợp'] = { text: `Tổng cộng`, value: `${matchingScore}%`, success: matchingScore > 0 };
 
-            // 2. Skill Bonus (Max 30)
-            const skillBonus = (skills.giaoTiep.level * 2) + (skills.damPhan.level * 2) + (skills.amHieu.level * 2);
+            const skillBonus = (skills.giaoTiep.level) + (skills.damPhan.level * 2) + (skills.amHieu.level * 2);
             details['Kỹ năng'] = { text: `Giao tiếp, Đàm phán...`, value: `+${skillBonus}%`, success: true };
 
-            // 3. Rapport Bonus (Max 20)
-            const rapportBonus = gameState.journey.rapport;
-            details['Thiện cảm'] = { text: `Qua đối thoại`, value: `+${rapportBonus}%`, success: true };
+            const rapportBonus = Math.round(gameState.journey.rapport / 4); // Rapport from dialogue
+            details['Thiện cảm (SPIN)'] = { text: `Qua đối thoại`, value: `+${rapportBonus}%`, success: true };
             
-            // 4. Emotional Factor (The wild card)
             const emotionalFactor = client.emotionalFactor;
             details['Cảm tính khách hàng'] = { text: `Yếu tố bất ngờ`, value: `${emotionalFactor > 0 ? '+' : ''}${emotionalFactor}%`, success: emotionalFactor >= 0 };
 
-            // Final Calculation
             const successChance = Math.max(5, Math.min(95, matchingScore + skillBonus + rapportBonus + emotionalFactor));
             const roll = Math.random() * 100;
             const isSuccess = roll < successChance;
@@ -487,7 +502,7 @@
             
             let title, message, icon;
             if (isSuccess) {
-                const commission = Math.round(prop.price * 0.02); // 2% commission
+                const commission = Math.round(prop.price * 0.02);
                 const expGained = Math.round(prop.price / 10);
                 gameState.player.cash += commission;
                 addExp(expGained);
@@ -500,10 +515,9 @@
                 addExp(expGained);
                 failureSound();
                 title = "THƯƠNG VỤ THẤT BẠI!";
-                message = `Rất tiếc, ${client.name} đã từ chối vào phút chót. Bạn nhận được ${expGained} EXP an ủi. Đừng nản lòng!`;
+                message = `Rất tiếc, ${client.name} đã từ chối. Bạn nhận được ${expGained} EXP an ủi. Hãy phân tích lại và đừng nản lòng!`;
                 icon = `<i class="fas fa-times-circle text-7xl text-red-500"></i>`;
             }
-
             showResultModal(title, message, icon, details);
         }
 
@@ -512,17 +526,11 @@
             document.getElementById('result-title').textContent = title;
             document.getElementById('result-message').textContent = message;
             document.getElementById('result-icon').innerHTML = icon;
-
             const detailsEl = document.getElementById('result-details');
             detailsEl.innerHTML = `<h4 class="font-bold text-slate-600 mb-2">Phân tích thương vụ:</h4>`;
             for(const key in details) {
                 const detail = details[key];
-                detailsEl.innerHTML += `
-                    <div class="flex justify-between items-center">
-                        <span>${key}: <span class="text-slate-500">${detail.text}</span></span>
-                        <span class="font-bold ${detail.success ? 'text-green-600' : 'text-red-600'}">${detail.value}</span>
-                    </div>
-                `;
+                detailsEl.innerHTML += `<div class="flex justify-between items-center"><span>${key}: <span class="text-slate-500">${detail.text}</span></span><span class="font-bold ${detail.success ? 'text-green-600' : 'text-red-600'}">${detail.value}</span></div>`;
             }
         }
 
