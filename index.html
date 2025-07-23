@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siêu Sao Môi Giới</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f1f5f9;
+        }
+        .card {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.07);
+            transition: all 0.3s ease;
+        }
+        .btn {
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            color: white;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(59, 130, 246, 0.4);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+            color: white;
+            box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(34, 197, 94, 0.4);
+        }
+        .disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+        .modal-content {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 550px;
+            text-align: center;
+            animation: modal-pop 0.3s ease-out;
+        }
+        @keyframes modal-pop {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .progress-bar {
+            background-color: #e2e8f0;
+            border-radius: 9999px;
+            overflow: hidden;
+            height: 12px;
+        }
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #60a5fa, #3b82f6);
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.5s ease-in-out;
+        }
+        .dialogue-option {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .dialogue-option:hover {
+            background-color: #f8fafc;
+            border-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6">
+
+    <div id="game-container" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6">
+        
+        <!-- Left Panel: Player Stats & Skills -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="card p-5">
+                <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center"><i class="fas fa-user-tie mr-3 text-blue-500"></i>Hồ Sơ Của Bạn</h2>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">Cấp Độ</p>
+                        <p id="player-level" class="text-2xl font-bold text-slate-900">1</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">Kinh Nghiệm</p>
+                        <div class="progress-bar mt-1">
+                            <div id="player-exp-bar" class="progress-bar-fill" style="width: 0%;"></div>
+                        </div>
+                        <p id="player-exp-text" class="text-xs text-right text-slate-500 mt-1">0 / 100</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">Hoa Hồng</p>
+                        <p id="player-cash" class="text-2xl font-bold text-green-600">$500</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-5">
+                <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center"><i class="fas fa-brain mr-3 text-amber-500"></i>Kỹ Năng</h2>
+                <div id="skills-container" class="space-y-4"></div>
+            </div>
+        </div>
+
+        <!-- Center Panel: Main Game Area -->
+        <div id="main-panel" class="lg:col-span-2 card p-6 min-h-[500px] flex flex-col">
+            <!-- Content changes based on game stage -->
+        </div>
+
+        <!-- Right Panel: Properties List -->
+        <div class="lg:col-span-1 card p-5">
+            <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center"><i class="fas fa-city mr-3 text-teal-500"></i>Giỏ Hàng BĐS</h2>
+            <div id="properties-list" class="space-y-3 max-h-[600px] overflow-y-auto pr-2"></div>
+        </div>
+
+    </div>
+
+    <!-- Modal for Deal Outcome -->
+    <div id="result-modal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <div id="result-icon"></div>
+            <h3 id="result-title" class="text-3xl font-bold mt-4"></h3>
+            <p id="result-message" class="text-slate-600 mt-3 text-lg"></p>
+            <div id="result-details" class="text-left bg-slate-50 p-4 rounded-lg mt-6 text-sm space-y-2"></div>
+            <button id="close-modal-btn" class="btn btn-primary mt-8">Tiếp Tục</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA SETUP ---
+        const GAME_DATA = {
+            properties: [
+                // Phân khúc < 2 tỷ
+                { id: 1, name: 'NOXH An Phú', location: 'Khu Tây', price: 1800, type: 'Căn hộ', segment: 'Nhà ở xã hội', minLevel: 1 },
+                // Phân khúc 2-4 tỷ
+                { id: 2, name: 'Căn hộ The Standard', location: 'Tỉnh lân cận', price: 2500, type: 'Căn hộ', segment: 'Bình dân', minLevel: 1 },
+                { id: 3, name: 'Nhà phố Eco Garden', location: 'Khu Tây', price: 3800, type: 'Nhà phố', segment: 'Bình dân', minLevel: 2 },
+                // Phân khúc 4-7 tỷ
+                { id: 4, name: 'Căn hộ Saigon Riverside', location: 'Khu Đông', price: 4500, type: 'Căn hộ', segment: 'Trung cấp', minLevel: 2 },
+                { id: 5, name: 'Shophouse Lakeview', location: 'Khu Nam', price: 6500, type: 'Shophouse', segment: 'Trung cấp', minLevel: 3 },
+                // Phân khúc 7-15 tỷ
+                { id: 6, name: 'Biệt thự The Oasis', location: 'Khu Đông', price: 9000, type: 'Biệt thự', segment: 'Cao cấp', minLevel: 4 },
+                { id: 7, name: 'Căn hộ The Metropole', location: 'Trung tâm', price: 12000, type: 'Căn hộ', segment: 'Cao cấp', minLevel: 5 },
+                // Phân khúc > 15 tỷ
+                { id: 8, name: 'Penthouse The Marq', location: 'Trung tâm', price: 25000, type: 'Penthouse', segment: 'Hạng sang', minLevel: 6 },
+                { id: 9, name: 'Biệt thự Grand Marina', location: 'Trung tâm', price: 40000, type: 'Biệt thự', segment: 'Hàng hiệu', minLevel: 7 },
+            ],
+            clientData: {
+                names: ['Anh Khoa', 'Chị Mai', 'Cô Bảy', 'Chú Nam', 'Bạn Hùng', 'Chị Trúc'],
+                needs: ['Để ở', 'Đầu tư cho thuê', 'Đầu tư lướt sóng', 'Giữ tài sản'],
+                financials: ['100% vốn tự có', 'Vay ngân hàng 30%', 'Vay ngân hàng 50%', 'Vay ngân hàng 70%'],
+                incomes: [30, 50, 80, 120, 200], // in millions VND
+                initialInterests: ['Căn hộ', 'Nhà phố', 'Biệt thự', 'Shophouse'],
+            },
+            dialogue: {
+                questions: [
+                    {
+                        prompt: "Chào anh/chị, em gọi từ phòng kinh doanh dự án. Không biết mình đang quan tâm sản phẩm BĐS với mục đích gì ạ?",
+                        key: "need",
+                        options: ["Để ở", "Để đầu tư", "Chỉ xem thử thôi"]
+                    },
+                    {
+                        prompt: "Dạ tuyệt vời ạ. Về tài chính, không biết mình dự định dùng hoàn toàn vốn tự có hay có hỗ trợ từ ngân hàng ạ?",
+                        key: "financial",
+                        options: ["Anh/chị tự chủ tài chính", "Chắc sẽ vay một ít"]
+                    },
+                    {
+                        prompt: "Để tư vấn gói vay phù hợp, anh/chị có thể chia sẻ mức thu nhập hàng tháng của mình được không ạ?",
+                        key: "income",
+                        options: ["Khoảng 30-50 triệu", "Khoảng 50-100 triệu", "Trên 100 triệu"]
+                    },
+                ]
+            }
+        };
+
+        // --- GAME STATE ---
+        let gameState = {
+            player: {
+                level: 1,
+                exp: 0,
+                cash: 500,
+                skills: {
+                    giaoTiep: { name: 'Giao Tiếp', level: 1, cost: 100, icon: 'fa-comments' },
+                    damPhan: { name: 'Đàm Phán', level: 1, cost: 150, icon: 'fa-handshake' },
+                    marketing: { name: 'Marketing', level: 1, cost: 120, icon: 'fa-bullhorn' },
+                    amHieu: { name: 'Am Hiểu Thị Trường', level: 1, cost: 200, icon: 'fa-magnifying-glass-chart' }
+                }
+            },
+            journey: {
+                stage: 'IDLE', // IDLE, DIALOGUE, PROPOSAL, RESULT
+                client: null,
+                dialogueStep: 0,
+                rapport: 0, // Thiện cảm
+                selectedPropertyId: null,
+            },
+            expToNextLevel: 100,
+        };
+
+        // --- SOUNDS ---
+        const synth = new Tone.Synth().toDestination();
+        const successSound = () => synth.triggerAttackRelease("C5", "8n", Tone.now());
+        const failureSound = () => synth.triggerAttackRelease("C3", "8n", Tone.now());
+        const upgradeSound = () => new Tone.PolySynth().toDestination().triggerAttackRelease(["C4", "E4", "G4"], "8n");
+        const levelUpSound = () => new Tone.PolySynth().toDestination().triggerAttackRelease(["C4", "E4", "G4", "C5"], "4n");
+
+        // --- UI ELEMENTS ---
+        const playerLevelEl = document.getElementById('player-level');
+        const playerExpBarEl = document.getElementById('player-exp-bar');
+        const playerExpTextEl = document.getElementById('player-exp-text');
+        const playerCashEl = document.getElementById('player-cash');
+        const skillsContainerEl = document.getElementById('skills-container');
+        const mainPanelEl = document.getElementById('main-panel');
+        const propertiesListEl = document.getElementById('properties-list');
+        const resultModalEl = document.getElementById('result-modal');
+
+        // --- RENDER FUNCTIONS ---
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value * 1000000);
+        }
+
+        function updatePlayerUI() {
+            playerLevelEl.textContent = gameState.player.level;
+            playerCashEl.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(gameState.player.cash);
+            const expPercent = (gameState.player.exp / gameState.expToNextLevel) * 100;
+            playerExpBarEl.style.width = `${expPercent}%`;
+            playerExpTextEl.textContent = `${gameState.player.exp} / ${gameState.expToNextLevel} EXP`;
+        }
+
+        function updateSkillsUI() {
+            skillsContainerEl.innerHTML = '';
+            for (const key in gameState.player.skills) {
+                const skill = gameState.player.skills[key];
+                const canAfford = gameState.player.cash >= skill.cost;
+                skillsContainerEl.innerHTML += `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-semibold text-slate-700 flex items-center"><i class="fas ${skill.icon} mr-2 text-slate-500 w-4"></i>${skill.name}</p>
+                            <p class="text-sm text-slate-500">Cấp ${skill.level}</p>
+                        </div>
+                        <button class="btn bg-slate-200 text-slate-700 hover:bg-slate-300 text-xs px-3 py-2 ${canAfford ? '' : 'disabled'}" onclick="upgradeSkill('${key}')" ${canAfford ? '' : 'disabled'}>
+                            + ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(skill.cost)}
+                        </button>
+                    </div>`;
+            }
+        }
+
+        function updatePropertiesUI() {
+            propertiesListEl.innerHTML = '';
+            GAME_DATA.properties.forEach(prop => {
+                const isLocked = prop.minLevel > gameState.player.level;
+                const isSelected = gameState.journey.selectedPropertyId === prop.id;
+                const canSelect = gameState.journey.stage === 'PROPOSAL' && !isLocked;
+
+                propertiesListEl.innerHTML += `
+                    <div class="card p-3 border-2 ${isSelected ? 'border-blue-500' : 'border-transparent'} ${isLocked ? 'opacity-50' : (canSelect ? 'cursor-pointer' : '')}" 
+                         onclick="${canSelect ? `selectProperty(${prop.id})` : ''}">
+                        <div class="flex items-start">
+                            <i class="fas fa-building text-xl mr-4 text-teal-600 w-6 text-center pt-1"></i>
+                            <div>
+                                <p class="font-semibold text-slate-800">${prop.name}</p>
+                                <p class="text-sm text-slate-500">${prop.location} - ${prop.segment}</p>
+                                <p class="text-sm text-green-600 font-medium">${formatCurrency(prop.price)}</p>
+                                ${isLocked ? `<p class="text-xs text-red-500 font-semibold">Yêu cầu Cấp ${prop.minLevel}</p>` : ''}
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function updateMainPanelUI() {
+            const stage = gameState.journey.stage;
+            if (stage === 'IDLE') {
+                mainPanelEl.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full text-center">
+                        <i class="fas fa-search-dollar text-6xl text-slate-300 mb-4"></i>
+                        <h2 class="text-2xl font-bold text-slate-700">Sẵn sàng chinh phục khách hàng?</h2>
+                        <p class="text-slate-500 mt-2 mb-6 max-w-sm">Sử dụng kỹ năng Marketing để tìm kiếm khách hàng tiềm năng và bắt đầu hành trình của bạn.</p>
+                        <button class="btn btn-primary" onclick="startJourney()">
+                            <i class="fas fa-search mr-2"></i>Tìm Khách Hàng Mới
+                        </button>
+                    </div>`;
+            } else if (stage === 'DIALOGUE') {
+                const q = GAME_DATA.dialogue.questions[gameState.journey.dialogueStep];
+                mainPanelEl.innerHTML = `
+                    <div class="flex flex-col h-full">
+                        <div class="text-center mb-6">
+                            <p class="text-sm text-slate-500">Hành trình khách hàng: Bước 2/7</p>
+                            <h2 class="text-2xl font-bold text-slate-800">Tiếp Cận & Phân Tích</h2>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                            <p class="font-semibold text-blue-800">Khách hàng nói:</p>
+                            <p class="text-lg text-slate-700 italic">"${q.prompt}"</p>
+                        </div>
+                        <div class="space-y-3">
+                            ${q.options.map((opt, index) => `
+                                <div class="dialogue-option" onclick="handleDialogueChoice(${index})">
+                                    <p>${opt}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
+            } else if (stage === 'PROPOSAL') {
+                const client = gameState.journey.client;
+                mainPanelEl.innerHTML = `
+                    <div class="flex flex-col h-full">
+                        <div class="text-center mb-6">
+                            <p class="text-sm text-slate-500">Hành trình khách hàng: Bước 3/7</p>
+                            <h2 class="text-2xl font-bold text-slate-800">Tư Vấn Sản Phẩm</h2>
+                        </div>
+                        <div class="card bg-slate-50 p-4 space-y-2 flex-grow">
+                            <h3 class="text-lg font-bold text-slate-700">Hồ Sơ Khách Hàng: ${client.name}</h3>
+                            <p><strong>Nhu cầu:</strong> <span class="font-semibold text-blue-600">${client.need}</span></p>
+                            <p><strong>Tài chính:</strong> <span class="font-semibold text-blue-600">${client.financial}</span></p>
+                            <p><strong>Thu nhập:</strong> <span class="font-semibold text-blue-600">~${client.income} triệu/tháng</span></p>
+                            <p><strong>Cảm tính:</strong> <span class="font-semibold text-purple-600">???</span> (Yếu tố ẩn)</p>
+                        </div>
+                        <div class="mt-6 text-center">
+                            <p class="text-slate-600 mb-4">Dựa vào thông tin trên, hãy chọn sản phẩm phù hợp nhất từ giỏ hàng bên phải.</p>
+                            <button id="attempt-deal-btn" class="btn btn-success disabled" onclick="attemptDeal()" disabled>
+                                <i class="fas fa-file-signature mr-2"></i>Chốt Deal
+                            </button>
+                        </div>
+                    </div>`;
+            }
+        }
+        
+        function updateAllUI() {
+            updatePlayerUI();
+            updateSkillsUI();
+            updatePropertiesUI();
+            updateMainPanelUI();
+        }
+
+        // --- GAME LOGIC ---
+        function upgradeSkill(key) {
+            const skill = gameState.player.skills[key];
+            if (gameState.player.cash >= skill.cost) {
+                gameState.player.cash -= skill.cost;
+                skill.level++;
+                skill.cost = Math.round(skill.cost * 1.6);
+                upgradeSound();
+                updateAllUI();
+            }
+        }
+
+        function addExp(amount) {
+            gameState.player.exp += amount;
+            while (gameState.player.exp >= gameState.expToNextLevel) {
+                gameState.player.exp -= gameState.expToNextLevel;
+                gameState.player.level++;
+                gameState.expToNextLevel = Math.round(gameState.expToNextLevel * 1.6);
+                levelUpSound();
+                // Add highlight effect later if needed
+            }
+        }
+
+        function startJourney() {
+            // Generate Client
+            const { names, needs, financials, incomes, initialInterests } = GAME_DATA.clientData;
+            gameState.journey.client = {
+                name: names[Math.floor(Math.random() * names.length)],
+                need: needs[Math.floor(Math.random() * needs.length)],
+                financial: financials[Math.floor(Math.random() * financials.length)],
+                income: incomes[Math.floor(Math.random() * incomes.length)],
+                initialInterest: initialInterests[Math.floor(Math.random() * initialInterests.length)],
+                // Yếu tố cảm tính ngẫu nhiên, từ -20 (rất khó) đến +20 (rất dễ)
+                emotionalFactor: Math.floor(Math.random() * 41) - 20 
+            };
+            
+            // Reset journey state
+            gameState.journey.stage = 'DIALOGUE';
+            gameState.journey.dialogueStep = 0;
+            gameState.journey.rapport = 0;
+            gameState.journey.selectedPropertyId = null;
+            
+            updateAllUI();
+        }
+
+        function handleDialogueChoice(choiceIndex) {
+            // Simple logic for now: correct choice gives rapport
+            // In a real game, this would be more complex
+            if (choiceIndex < 2) { // Assume first 2 options are good
+                gameState.journey.rapport += 10;
+            }
+            
+            gameState.journey.dialogueStep++;
+            
+            if (gameState.journey.dialogueStep >= GAME_DATA.dialogue.questions.length) {
+                gameState.journey.stage = 'PROPOSAL';
+            }
+            updateAllUI();
+        }
+
+        function selectProperty(propId) {
+            if (gameState.journey.stage !== 'PROPOSAL') return;
+            gameState.journey.selectedPropertyId = propId;
+            updatePropertiesUI(); // To show selection
+            
+            const dealBtn = document.getElementById('attempt-deal-btn');
+            if (dealBtn) {
+                dealBtn.classList.remove('disabled');
+                dealBtn.disabled = false;
+            }
+        }
+        
+        function attemptDeal() {
+            const client = gameState.journey.client;
+            const prop = GAME_DATA.properties.find(p => p.id === gameState.journey.selectedPropertyId);
+            const skills = gameState.player.skills;
+
+            let details = {};
+            
+            // 1. Matching Score (Max 50)
+            let matchingScore = 0;
+            const priceAffordable = client.income * 50 > prop.price; // Simple affordability check
+            if (priceAffordable) {
+                matchingScore += 25;
+                details['Tài chính'] = { text: 'Phù hợp', value: '+25%', success: true };
+            } else {
+                matchingScore -= 10;
+                details['Tài chính'] = { text: 'Vượt ngân sách', value: '-10%', success: false };
+            }
+            
+            const segmentMatch = client.initialInterest === prop.type;
+            if (segmentMatch) {
+                matchingScore += 25;
+                details['Loại hình'] = { text: 'Đúng nhu cầu', value: '+25%', success: true };
+            } else {
+                details['Loại hình'] = { text: 'Chưa đúng nhu cầu', value: '+0%', success: true };
+            }
+            details['Điểm phù hợp'] = { text: `Tổng cộng`, value: `${matchingScore}%`, success: matchingScore > 0 };
+
+            // 2. Skill Bonus (Max 30)
+            const skillBonus = (skills.giaoTiep.level * 2) + (skills.damPhan.level * 2) + (skills.amHieu.level * 2);
+            details['Kỹ năng'] = { text: `Giao tiếp, Đàm phán...`, value: `+${skillBonus}%`, success: true };
+
+            // 3. Rapport Bonus (Max 20)
+            const rapportBonus = gameState.journey.rapport;
+            details['Thiện cảm'] = { text: `Qua đối thoại`, value: `+${rapportBonus}%`, success: true };
+            
+            // 4. Emotional Factor (The wild card)
+            const emotionalFactor = client.emotionalFactor;
+            details['Cảm tính khách hàng'] = { text: `Yếu tố bất ngờ`, value: `${emotionalFactor > 0 ? '+' : ''}${emotionalFactor}%`, success: emotionalFactor >= 0 };
+
+            // Final Calculation
+            const successChance = Math.max(5, Math.min(95, matchingScore + skillBonus + rapportBonus + emotionalFactor));
+            const roll = Math.random() * 100;
+            const isSuccess = roll < successChance;
+
+            details['Tỷ lệ thành công'] = { text: `(Cần ${successChance.toFixed(0)}%)`, value: `Bạn đã quay được ${roll.toFixed(0)}%`, success: isSuccess };
+            
+            let title, message, icon;
+            if (isSuccess) {
+                const commission = Math.round(prop.price * 0.02); // 2% commission
+                const expGained = Math.round(prop.price / 10);
+                gameState.player.cash += commission;
+                addExp(expGained);
+                successSound();
+                title = "CHỐT DEAL THÀNH CÔNG!";
+                message = `Bạn đã thuyết phục được ${client.name} mua ${prop.name}. Bạn nhận được ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(commission)} hoa hồng và ${expGained} EXP.`;
+                icon = `<i class="fas fa-check-circle text-7xl text-green-500"></i>`;
+            } else {
+                const expGained = 50;
+                addExp(expGained);
+                failureSound();
+                title = "THƯƠNG VỤ THẤT BẠI!";
+                message = `Rất tiếc, ${client.name} đã từ chối vào phút chót. Bạn nhận được ${expGained} EXP an ủi. Đừng nản lòng!`;
+                icon = `<i class="fas fa-times-circle text-7xl text-red-500"></i>`;
+            }
+
+            showResultModal(title, message, icon, details);
+        }
+
+        function showResultModal(title, message, icon, details) {
+            resultModalEl.classList.remove('hidden');
+            document.getElementById('result-title').textContent = title;
+            document.getElementById('result-message').textContent = message;
+            document.getElementById('result-icon').innerHTML = icon;
+
+            const detailsEl = document.getElementById('result-details');
+            detailsEl.innerHTML = `<h4 class="font-bold text-slate-600 mb-2">Phân tích thương vụ:</h4>`;
+            for(const key in details) {
+                const detail = details[key];
+                detailsEl.innerHTML += `
+                    <div class="flex justify-between items-center">
+                        <span>${key}: <span class="text-slate-500">${detail.text}</span></span>
+                        <span class="font-bold ${detail.success ? 'text-green-600' : 'text-red-600'}">${detail.value}</span>
+                    </div>
+                `;
+            }
+        }
+
+        function closeModal() {
+            resultModalEl.classList.add('hidden');
+            gameState.journey.stage = 'IDLE';
+            updateAllUI();
+        }
+
+        // --- INITIALIZE ---
+        document.addEventListener('DOMContentLoaded', () => {
+            updateAllUI();
+            document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+        });
+    </script>
+</body>
+</html>
